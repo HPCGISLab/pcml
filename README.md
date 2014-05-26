@@ -1,4 +1,4 @@
-Parallelized Cartographic Modeling Language - pCML
+Parallel Cartographic Modeling Language - pCML
 ===
 
 Introduction
