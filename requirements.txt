@@ -1,0 +1,3 @@
+Sphinx
+numpy
+GDAL==1.10.0

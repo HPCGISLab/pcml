@@ -1,0 +1,12 @@
+1. Make sure that pip and setuptools are installed in your current Python environment (global or a virtualenv).
+2. Run the following commands:
+
+    $ pip install -r requirements.txt # Need to use pip to install numpy and other required packages or the next line will fail
+    $ python setup.py install
+
+3. Testing and code coverage
+
+    $ python setup.py test
+
+Congratulations, you have the latest pCML version installed.
+
