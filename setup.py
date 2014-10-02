@@ -14,9 +14,10 @@ reqs = [str(ir.req) for ir in install_reqs]
 
 if __name__ == '__main__':
     setup(
-          name='pCML',
+          name='pcml',
           version='0.1',
+          license='Copyright (c) 2014 High-Performance Computing and GIS (HPCGIS) Laboratory. All rights reserved. Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.',
           install_requires = reqs,
-          packages=['pCML', 'pCML.core', 'pCML.lib', 'pCML.util'],
+          packages=['pcml', 'pcml.core', 'pcml.lib', 'pcml.util'],
           test_suite = 'tests',
           )
