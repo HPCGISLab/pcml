@@ -1,3 +1,4 @@
 Sphinx
 numpy
-GDAL==1.10.0
+# TODO: list version dependency constraints
+GDAL>=1.10.0,<1.11.0
