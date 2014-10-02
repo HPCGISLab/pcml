@@ -15,10 +15,9 @@ operations while hiding the implementation complexities of parallelism.
 Installation
 ------------
 
-* 1) Make sure that `pip` and `setuptools` are installed in your current Python environment (global or a virtualenv).
-* 2) Install GDAL library
+### 1. Make sure that `pip` and `setuptools` are installed in your current Python environment (global or a virtualenv).
 
-` `
+### 2. Install GDAL library
 
     $ sudo apt-get install libgdal-dev
 
@@ -28,17 +27,15 @@ or
 
 *The command may vary according to package manager and system.*
 
-* 3) Install the required dependencies
-
-` `
+### 3. Install the required dependencies
 
     $ pip install -r requirements.txt
 
-* 4) Finally, install
-
-` `
+### 4. Finally, install
 
     $ python setup.py install
+
+<!-- TODO: platform/distribution specific troubleshooting. -->
 
 
 Example
