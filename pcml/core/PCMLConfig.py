@@ -13,3 +13,8 @@ exectype=ExecutorType.parallelpythonqueue
 
 # The precision used in formatting floating values into strings
 value_precision="%f"
+
+# By default osgeo including gdal, ogr, and osr are not available
+# In OperationIO we try to import them and if successful osgeoenabled=1
+osgeoenabled=0
+

@@ -8,9 +8,17 @@ from ..core.Layer import *
 import numpy as np
 #from linecache import getline
 import fileinput
-from osgeo import gdal
-from osgeo import ogr
-from osgeo import osr
+
+
+try: 
+   PCMLConfig.osgeoenabled=1
+   from osgeo2 import gdal
+   from osgeo2 import ogr
+   from osgeo2 import osr
+except ImportError, e:
+   PCMLConfig.osgeoenabled=0
+   if e.message != 'No module named osgeo2':
+      raise
 
 # Assumes the following format
 '''
@@ -89,6 +97,9 @@ def WriteASCIIGrid(filename, layer):
     asciigridfile.close()
 
 def ReadGeoTIFF(filename,bandnumber=1):
+    if PCMLConfig.osgeoenabled==0:
+       PCMLUserInformation("ReadGeoTIFF is disabled, because PCML could not find osgeo or gdal library")
+       return None 
 
     ds = gdal.Open(filename) # Open gdal dataset
     if ds is None:
@@ -130,6 +141,10 @@ def ReadGeoTIFF(filename,bandnumber=1):
     return layer
 
 def WriteGeoTIFF(filename, layer):
+    if PCMLConfig.osgeoenabled==0:
+       PCMLUserInformation("WriteGeoTIFF is disabled, because PCML could not find osgeo or gdal library")
+       return None 
+
     assert(layer.data_structure==Datastructure.array)
 
     driver = gdal.GetDriverByName('GTiff')
