@@ -4,7 +4,7 @@ Use of this source code is governed by a BSD-style license that can be found in 
 Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
 """
 from ..util.Messaging import *
-from .LayerDecomposition import *
+from .Decomposition import *
 from .BoundingBox import *
 from abc import ABCMeta, abstractmethod
 
@@ -31,13 +31,16 @@ class Operation(object):
         self.name = name
 
         PCMLTODO("Only row decomposition method supported, so hardcoding for now")
-        self.decomposition_method=DecompositionMethod.row
+        #self.decomposition_method=DecompositionMethod.row
 
         _layerstuple = kwargs.get('layers', None)
         if _layerstuple!=None:
             self._layers = list(_layerstuple)
         self.opclass = kwargs.get('opclass', OpClass.localclass)
         self.buffersize = kwargs.get('buffersize', 0)
+        self.decomposition = kwargs.get('decomposition',rowdecomposition) # By default use row decomposition
+        if self.opclass==OpClass.localclass and self.buffersize != 0:
+            raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
 
     def __repr__(self):
         return "<Operation: %s : %i layers>" % (self.name,len(self._layers))
@@ -46,18 +49,7 @@ class Operation(object):
         PCMLTODO("Need to support more than one output layer")
         return self._layers[0]
 
-
-
-    def decomposition(self):
-        """ Divides the :member:_layers into subdomains for further processing.
-        The decomposition method is defined by :member:`decompositionmethod`.
-        You can also define you own decomposition algorithm by overriding this method.
-        """
-
-        listofsubdomains = []
-
-        PCMLTODO("Need to support multiple output layers")
-
+    def _decompositioninit(self):
         # Duplicate a layer to create an output layer with the correct dimensions
         # Get the first layer
         firstlayer=self._layers[0]
@@ -66,36 +58,40 @@ class Operation(object):
         outputlayer=firstlayer.duplicate()
         outputlayer.title="Output for operation %s"%self.name
 
-        # IMPORTANT : first entry in the listoflayerportions is the output portions list!
-        if self.opclass == OpClass.localclass:  # If a local operation
-            self._layers.insert(0, outputlayer)  # Add the output layer to the front of the layers list
-            for layer in self._layers:
-                listofsubdomains.append(layer.decomposition(self.decomposition_method, 0)) # 0 is the buffer size, which is 0 for local operations
-        elif self.opclass == OpClass.focalclass:  # If a focal operation
-            # For non-local operations, we don't want a buffer for our output layer otherwise locations may overlap
-            PCMLTODO("Need to ensure that buffer versus non-buffer decompositions are identical for this to work")
-            listofsubdomains.append(outputlayer.decomposition(self.decomposition_method, 0))
-            for layer in self._layers:
-                listofsubdomains.append(layer.decomposition(self.decomposition_method, self.buffersize))
-            self._layers.insert(0, outputlayer)  # Add the output layer to the front of the layers list after loop
-                                                 # so it is not divided with a buffersize (in previous for loop)
-        elif self.opclass == OpClass.globalclass:  # If a focal operation
-            # For non-local operations, we don't want a buffer for our output layer otherwise locations may overlap
-            PCMLTODO("Need to ensure that buffer versus non-buffer decompositions are identical for this to work")
-            listofsubdomains.append(outputlayer.decomposition(self.decomposition_method, 0))
-            for layer in self._layers:
-                listofsubdomains.append(layer.decomposition(self.decomposition_method, -1))  # -1 means the buffer is infinite sized
-            self._layers.insert(0, outputlayer)  # Add the output layer to the front of the layers list after loop
-                                                 # so it is not divided with a buffersize (in previous for loop)
-        else:
-            raise PCMLClassificationNotSupported(self.opclass)
+        self._layers.insert(0, outputlayer)  # Add the output layer to the front of the layers list
+
+    # By default we use rowdecomposition as our decomposition method
+    # Users may override decomposition with any other method they would like
+    #def decomposition(self,layer,buffersize):
+    #    return rowdecomposition(layer,buffersize)
+
+    def _decompositionrun(self):
+        """ Divides the :member:_layers into subdomains for further processing.
+        The decomposition method is defined by :member:`decompositionmethod`.
+        You can also define you own decomposition algorithm by overriding this method.
+        """
+
+        PCMLTODO("Need to support multiple output layers, this can be done by overriding decomposition and inserting multiple output layers")
+        listofsubdomains = []
+
+        self._decompositioninit()
+
+        # The output layer is the first layer in the layers list (self.layers[0])
+        # Decompose it with a 0 buffer
+        #listofsubdomains.append(self._layers[0].decomposition(self.decomposition_method, 0))
+        listofsubdomains.append(self.decomposition(self._layers[0], 0))
+
+        for layer in self._layers:
+            if layer != self._layers[0]: # Skip the output layer, because it was already decomposed and added
+               #listofsubdomains.append(layer.decomposition(self.decomposition_method, self.buffersize)) # buffer size is set based on classification (L,F,Z,G)
+               listofsubdomains.append(self.decomposition(layer, self.buffersize)) # buffer size is set based on classification (L,F,Z,G)
+
+        # The listofsubdomains is inverted using zip and map to create a list of lists
+        # so that each subdomain is grouped with the corresponding subdomain from each layer (see example below)
+        subdomainlists = map(list,zip(*listofsubdomains))
 
         # listofsubdomains = ( (layer1subdomain1 , layer1subdomain2) , (layer2subdomain1 , layer2subdomain2) )
         # subdomainlists =   ( (layer1subdomain1 , layer2subdomain1) , (layer1subdomain2 , layer2subdomain2) )
-
-        # The listofsubdomains is inverted using zip and map to create a list of lists
-        # so that each subdomain is grouped with the corresponding subdomain from each layer (see above for example)
-        subdomainlists = map(list,zip(*listofsubdomains))
 
         return subdomainlists
 
@@ -128,5 +124,5 @@ class Operation(object):
             outarr[loc['r']-outsubdomain.r][loc['c']-outsubdomain.c]=val # Set val to outarr at locind
 
     def function(self,locations,subdomains):
-        PCMLOperationError("Operation function is not implemented")
+        raise PCMLOperationError("Operation function is not implemented")
 

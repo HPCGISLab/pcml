@@ -4,7 +4,7 @@ Copyright (c) 2014 High-Performance Computing and GIS (HPCGIS) Laboratory. All r
 Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
 """
-from pCML import *
+from pcml import *
 
 import os.path as path
 import sys,getopt
@@ -28,6 +28,8 @@ if __name__ == '__main__':
                 PCMLConfig.exectype = ExecutorType.serialpython
     
     print "Number of cores used for spatial data processing: ",PCMLConfig.num_procs
+
+    bb=BoundingBox(0,0,10,10)
  
     # Default data directory
     datadir="./data/"
@@ -42,12 +44,24 @@ if __name__ == '__main__':
     print "layer2",layer2
     layer2.print_data()
 
+    print "\nTesting layer division" 
+    layero=layer1/layer2
+    layero.print_data()
+
+    print "\nTesting layer division" 
+    layero=layer1/layer1
+    layero.print_data()
 
     print "\nTesting layer addition and multiplication"
     layero=(layer1+layer1)*layer2
-
     print "layero",layero
     layero.print_data()
+
+    print "\nTesting layer subtraction layer1-layer1 "
+    layero=layer1-layer1
+    print "layero",layero
+    layero.print_data()
+
 
     layero=LocalSum_np(layer1,layer2)
     print "layero", layero 
@@ -55,6 +69,7 @@ if __name__ == '__main__':
 
     print "\nTesting FocalMean"
     layer1=FocalMean(layer1) 
+    layer1=LocalSin(layer1) 
     layer3=FocalMean(layer1, buffersize=3)
 
     print "layer1 (FocalMean with buffer = 1)", layer1

@@ -26,9 +26,18 @@ class PCMLNotSupported(Exception):
     def __str__(self):
         return repr(self.value)
 
+class PCMLInvalidInput(Exception):
+    def __init__(self,msg,value):
+        self.value=" [ ERROR ] The input is invalid (%s) : %s" % (msg,value)
+        print self.value
+        #exit(1)
+
+    def __str__(self):
+        return repr(self.value)
+
 class PCMLOperationError(Exception):
     def __init__(self,value):
-        self.value=" [ ERROR ] Operation error : %s" % value 
+        self.value=" [ ERROR ] Operation error : %s" % value
         print self.value
     def __str__(self):
         return repr(self.value)

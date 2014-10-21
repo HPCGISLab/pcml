@@ -3,8 +3,8 @@ Copyright (c) 2014 High-Performance Computing and GIS (HPCGIS) Laboratory. All r
 Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
 """
-from pCML import *
-from pCML.util.LayerBuilder import *
+from pcml import *
+from pcml.util.LayerBuilder import *
 from numpy.ma import allequal
 from os import path
 import numpy as np
@@ -42,6 +42,11 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
 
     def test_LocalSum(self):
         lo = LocalSum(self.l1, self.l2)
+        res = np.asarray([[3]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_LocalSum_coldecomp(self):
+        lo = LocalSum(self.l1, self.l2,decomposition=columndecomposition)
         res = np.asarray([[3]*4]*4)
         self.assertTrue(allequal(lo._data, res))
 
@@ -85,6 +90,15 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         lo = FocalMean(self.l6, buffersize=2)
         self.assertTrue(np.allclose(lo._data, self.l7._data))
 
+    def test_focalmean_coldecomp(self):
+        lo = FocalMean(self.l1, buffersize=1,decomposition=columndecomposition)
+        self.assertTrue(allequal(lo._data, self.l1._data), "FocalMean validation failed")
+        lo = FocalMean(self.l4, buffersize=1,decomposition=columndecomposition)
+        self.assertTrue(np.allclose(lo._data, self.l4._data))
+
+        lo = FocalMean(self.l6, buffersize=2,decomposition=columndecomposition)
+        self.assertTrue(np.allclose(lo._data, self.l7._data))
+
     def test_focalmean_np(self):
         lo = FocalMean_np(self.l1, buffersize=1)
         self.assertTrue(allequal(lo._data, self.l1._data), "FocalMean_np validation failed")
@@ -102,3 +116,14 @@ class TestLayerOperationsParallel(TestLayerOperationsSerial):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+# FIXME: things to test
+'''
+    @localoperation has buffersize=0
+    @focaloperation has buffersize>0
+    @globaloperation has buffersize=-1
+
+
+'''
+

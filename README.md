@@ -1,14 +1,14 @@
-Parallel Cartographic Modeling Language - pCML
+Parallel Cartographic Modeling Language - PCML
 ==============================================
 
 
 Introduction
 ------------
 
-The parallel cartographic modeling language (pCML) is a multi-institutional 
+The parallel cartographic modeling language (PCML) is a multi-institutional 
 collaborative project aiming to create a computing language for 
 cyberGIScientists that is designed for (1) usability, (2) programmability, and 
-(3) scalability. pCML provides multi-core parallel processing for spatial 
+(3) scalability. PCML provides multi-core parallel processing for spatial 
 operations while hiding the implementation complexities of parallelism. 
 
 
@@ -41,7 +41,7 @@ or
 Example
 -------
 
-    from pCML import *
+    from pcml import *
     PCMLConfig.num_procs = 4 # Run computation in 4 processes (default)
     layer1 = ReadASCIIGrid("layer1.asc")
     layer2 = ReadGeoTIFF("layer2.tiff")

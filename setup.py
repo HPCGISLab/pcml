@@ -17,20 +17,20 @@ if __name__ == '__main__':
     setup(
           name='pcml',
           version='0.1',
-          description='The parallel cartographic modeling language (pCML) provides spatial operations while hiding the implementation complexities of parallelism.',
+          description='The parallel cartographic modeling language (PCML) provides spatial operations while hiding the implementation complexities of parallelism.',
           url='https://github.com/HPCGISLab/pcml',
           author='Eric Shook',
           author_email='eshook@kent.edu',
           license='Copyright (c) 2014 High-Performance Computing and GIS (HPCGIS) Laboratory. All rights reserved. Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.',
           long_description=
 """
-pCML
+PCML
 ====
 
-The parallel cartographic modeling language (pCML) is a multi-institutional 
+The parallel cartographic modeling language (PCML) is a multi-institutional 
 collaborative project aiming to create a computing language for 
 cyberGIScientists that is designed for (1) usability, (2) programmability, and 
-(3) scalability. pCML provides multi-core parallel processing for spatial 
+(3) scalability. PCML provides multi-core parallel processing for spatial 
 operations while hiding the implementation complexities of parallelism.
 
 **Author**

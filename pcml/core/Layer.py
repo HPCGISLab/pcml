@@ -4,8 +4,8 @@ Use of this source code is governed by a BSD-style license that can be found in 
 Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
 """
 from .BoundingBox import *
-from ..lib.OperationPrimitives import *
-from .LayerDecomposition import *
+from ..lib.LocalOperationPrimitives import *
+from .Decomposition import *
 from ..util.Messaging import *
 
 class Layer(BoundingBox):
@@ -36,7 +36,7 @@ class Layer(BoundingBox):
         #TODO: PCMLTODO("Double check that all of the values are copied over")
         return newlayer
 
-
+    '''
     def decomposition(self, method, buffersize):
         """Return a list of subdomains based on decomposition method.
         """
@@ -44,6 +44,7 @@ class Layer(BoundingBox):
             return rowdecomposition(self, buffersize)
         else:
             raise PCMLNotImplemented("Other decomposition methods are not implemented yet")
+    '''
 
     ### Syntax Sugar
 
@@ -54,4 +55,14 @@ class Layer(BoundingBox):
     def __mul__(self,right):
         print '__mul__ %s * %s' %(self.title,right.title)
         return LocalMult(self,right)
+    
+    def __div__(self,right):
+        print '__div__ %s / %s' %(self.title,right.title)
+        return LocalDivision(self,right)
+
+    def __sub__(self,right):
+        print '__sub__ %s - %s' %(self.title,right.title)
+        return LocalSubtraction(self,right)
+
+
 

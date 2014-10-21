@@ -31,6 +31,14 @@ class BoundingBox(object):
         self.h = h
         self.w = w
 
+        # Sanity check
+        if(h<=0):
+            raise PCMLInvalidInput("BoundingBox does not support a negative or zero height",h)
+            #raise PCMLInvalidInput(h)
+        if(w<=0):
+            raise PCMLInvalidInput("BoundingBox does not support a negative or zero width",w)
+            #raise PCMLInvalidInput(w)
+
         # Data is held within the internal structure _data
         # and the data structure (e.g., array, list) and type (e.g., location, float, int) must also be described
         self._data = None
@@ -48,6 +56,37 @@ class BoundingBox(object):
     def __repr__(self):
         return "<BoundingBox: (%f,%f) [%f,%f]>" % (self.y, self.x, self.h, self.w)
 
+    def set_nparray(self,nparr,cellsize,nodata_value):
+        if nparr == None:
+            raise PCMLInvalidInput("BoundingBox.set_nparray does not support a nparr of None",nparr)
+        if cellsize == None:
+            raise PCMLInvalidInput("BoundingBox.set_nparray does not support a cellsize of None",cellsize)
+        if cellsize<=0:
+            raise PCMLInvalidInput("BoundingBox.set_nparray does not support cellsize<=0",cellsize)
+
+        self.data_structure=Datastructure.array
+        PCMLNotImplemented("self.data_type is not set")
+        # Unfortunately you cannot hide shared memory in another module as rawarray will return the same reference
+        # It may have to do with saving the __shmem_data variable, could explore this later
+        self.__shmem_data=mp.RawArray(ctypes.c_double,nparr.size)
+        self._data=shmem_as_ndarray(self.__shmem_data).reshape(nparr.shape)
+        self._data[:,:]=nparr
+        self.cellsize=cellsize
+        self.nodata_value=nodata_value
+        self._reset_dim()
+
+    def get_nparray(self):
+        return self._data
+
+    def set_pointlist(self,pointlist):
+        self.data_structure=Datastructure.pointlist
+        # FIXME: Should check if pointlist is a list datastructure
+        self._data=pointlist
+
+    def get_pointlist(self):
+        assert(self.data_structure==Datastructure.pointlist)
+        return self._data
+
     def _reset_dim(self):
         nparr=self.get_nparray()
         # Set nrows and ncols based on dimensions of array
@@ -62,30 +101,6 @@ class BoundingBox(object):
         if w != self.w:
             PCMLUserInformation("Updating width from "+str(self.w)+" to "+str(w))
             self.w=w
-
-    def set_nparray(self,nparr,cellsize,nodata_value):
-        self.data_structure=Datastructure.array
-        PCMLNotImplemented("self.data_type is not set")
-        # Unfortunately you cannot hide shared memory in another module as rawarray will return the same reference
-        # It may have to do with saving the __shmem_data variable, could explore this later
-        self.__shmem_data=mp.RawArray(ctypes.c_double,nparr.size)
-        self._data=shmem_as_ndarray(self.__shmem_data).reshape(nparr.shape)
-        self._data[:,:]=nparr
-        self.cellsize=cellsize
-        self.nodata_value=nodata_value
-        self._reset_dim()
-
-    def set_pointlist(self,pointlist):
-        self.data_structure=Datastructure.pointlist
-        # FIXME: Should check if pointlist is a list datastructure
-        self._data=pointlist
-
-    def get_pointlist(self):
-        assert(self.data_structure==Datastructure.pointlist)
-        return self._data
-
-    def get_nparray(self):
-        return self._data
 
     def set_data_ref(self,ref):
         """

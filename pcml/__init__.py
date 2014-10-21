@@ -8,6 +8,9 @@ from .core.BoundingBox import *
 from .core.Layer import *
 from .core.Subdomain import *
 from .core.Scheduler import *
-from .lib.OperationPrimitives import *
+from .lib.LocalOperationExecutors import *
+from .lib.LocalOperationPrimitives import *
+from .lib.FocalOperationPrimitives import *
+from .lib.GlobalOperationPrimitives import *
 from .lib.OperationIO import *
 
