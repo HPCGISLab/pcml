@@ -12,5 +12,6 @@ from .lib.LocalOperationExecutors import *
 from .lib.LocalOperationPrimitives import *
 from .lib.FocalOperationPrimitives import *
 from .lib.GlobalOperationPrimitives import *
+from .lib.ZonalOperationPrimitives import *
 from .lib.OperationIO import *
 
