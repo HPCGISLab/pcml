@@ -41,6 +41,9 @@ class Operation(object):
         self.decomposition = kwargs.get('decomposition',rowdecomposition) # By default use row decomposition
         if self.opclass==OpClass.localclass and self.buffersize != 0:
             raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
+	#If zonal operation we want the entire layer data
+	if self.opclass==OpClass.zonalclass:
+            self.buffersize=999999999999
 
     def __repr__(self):
         return "<Operation: %s : %i layers>" % (self.name,len(self._layers))
