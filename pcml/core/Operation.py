@@ -39,6 +39,7 @@ class Operation(object):
         self.opclass = kwargs.get('opclass', OpClass.localclass)
         self.buffersize = kwargs.get('buffersize', 0)
         self.decomposition = kwargs.get('decomposition',rowdecomposition) # By default use row decomposition
+        self.iterator = kwargs.get('iterator', 'rowiterator')
         if self.opclass==OpClass.localclass and self.buffersize != 0:
             raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
 	#If zonal operation we want the entire layer data
@@ -106,7 +107,7 @@ class Operation(object):
 
         outsubdomain = subdomains.pop(0)
         outarr = outsubdomain.get_nparray()
-
+        outsubdomain.set_iterator(self.iterator)
         if outsubdomain.data_structure!=Datastructure.array:
            print "datatype",outsubdomain.data_type,"arraydt",Datastructure.array
            PCMLNotSupported("Executor currently assumes an array data structure")

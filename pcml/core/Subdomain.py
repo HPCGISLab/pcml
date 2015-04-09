@@ -41,7 +41,13 @@ class Subdomain(BoundingBox):
 
         # Passes a locind with r,c set to *absolute* cell location in the layer
         # This makes it possible to reference buffered boxes (halo/ghost zones)
-        for locind in itertools.product(xrange(self.nrows), xrange(self.ncols)):
-            yield {'r':locind[0]+self.r,'c':locind[1]+self.c}
+        if self.iterator=='rowiterator':
+            for locind in itertools.product(xrange(self.nrows), xrange(self.ncols)):
+                yield {'r':locind[0]+self.r,'c':locind[1]+self.c}
+        elif self.iterator=='columniterator':
+            for locind in itertools.product(xrange(self.ncols), xrange(self.nrows)):
+                yield {'r':locind[1]+self.r,'c':locind[0]+self.c}
 
+    def set_iterator(self,iteratorstring):
+        self.iterator=iteratorstring
 
