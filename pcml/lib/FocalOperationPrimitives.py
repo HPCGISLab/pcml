@@ -123,6 +123,29 @@ def majority(arr):
         return -1
 
 @focaloperation
+def FocalMinority(self, locations, subdomains):
+    ar=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)
+#applying boyre moore's voting algorithm for finding minority
+    return minority(ar)
+
+def minority(ar):
+#boyre moores' voting algorithm
+    length=ar.size
+    half = length/2.0
+    counts = {}
+    for i in ar.flatten():
+        if i in counts:
+            counts[i]+=1
+        else:
+            counts[i]=1
+    a= min(counts.iteritems(), key=lambda i:i[1])
+    if a[1] < half:
+        return a[0]
+    else:
+        return -1
+
+
+@focaloperation
 def FocalMaximum_np(self, locations, subdomains):
     arr=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)  
     return np.max(arr)
