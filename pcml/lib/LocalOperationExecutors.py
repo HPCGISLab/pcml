@@ -50,11 +50,15 @@ def LocalMaximum_np(self, subdomains):
 @localoperation
 #finding Local Minimum among the given locations
 def LocalMinimum_np(self, subdomains):
+	
+    #get the arrays from subdomains . Assumes 2 subdomains    outsubdomain = subdomains[0]
 	outsubdomain = subdomains[0]
 	outarr = outsubdomain.get_nparray()
 	arr = np.minimum(subdomains[1].get_nparray(),subdomains[2].get_nparray())
 	outarr[:,:]=arr
 	
+    # Notice we don't need to return anything, because the resulting array (arr) is copied to outsubdomain through outarr
+
 @executor
 @localoperation
 #finding Local Mean among the given locations
@@ -66,9 +70,11 @@ def LocalMean_np(self, subdomains):
     outarr[:,:]=arr/denom
 
 
-@executor
+
+
 @localoperation
 #finding Local Difference among the given locations
+
 def LocalDifference_np(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
