@@ -11,6 +11,7 @@ import math
 from scipy import stats
 @executor
 @zonaloperation
+#Calculate the zonal sum based on two input subdomains with raster data and zonal data
 def ZonalSum_exec(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
@@ -19,8 +20,15 @@ def ZonalSum_exec(self, subdomains):
     rasterarray=subdomains[1].get_nparray()
     zones=np.unique(zoneslice)
     zoneindicesdict={}
+    #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        zoneindicesdict[zone]=np.sum(rasterarray[np.where(zonalarray==zone)])
+        start =timeit.default_timer()
+        totalsum=0
+        for j in xrange(subdomains[2].nrows):
+            totalsum+=np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)])
+        end =timeit.default_timer()
+        print "time taken",end-start
+        zoneindicesdict[zone]=totalsum
     vals=[]
     for zonedata in zoneslice.flat:
         vals.append(zoneindicesdict[zonedata])
@@ -28,6 +36,7 @@ def ZonalSum_exec(self, subdomains):
 
 @executor
 @zonaloperation
+#Calculate the zonal mean based on two input subdomains with raster data and zonal data
 def ZonalMean_exec(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
@@ -36,8 +45,15 @@ def ZonalMean_exec(self, subdomains):
     rasterarray=subdomains[1].get_nparray()
     zones=np.unique(zoneslice)
     zoneindicesdict={}
+    #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        zoneindicesdict[zone]=np.mean(rasterarray[np.where(zonalarray==zone)])
+        start =timeit.default_timer()
+        totalsum=0
+        for j in xrange(subdomains[2].nrows):
+            totalsum+=np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)])
+        end =timeit.default_timer()
+        print "time taken",end-start
+        zoneindicesdict[zone]=totalsum/zonalarray.size
     vals=[]
     for zonedata in zoneslice.flat:
         vals.append(zoneindicesdict[zonedata])
@@ -45,6 +61,7 @@ def ZonalMean_exec(self, subdomains):
 
 @executor
 @zonaloperation
+#Calculate the zonal maximum based on two input subdomains with raster data and zonal data
 def ZonalMaximum_exec(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
@@ -53,16 +70,25 @@ def ZonalMaximum_exec(self, subdomains):
     rasterarray=subdomains[1].get_nparray()
     zones=np.unique(zoneslice)
     zoneindicesdict={}
+    #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        zoneindicesdict[zone]=np.max(rasterarray[np.where(zonalarray==zone)])
+        start =timeit.default_timer()
+        maxval=np.NINF
+        for j in xrange(subdomains[2].nrows):
+            maxval=max(np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)]),maxval)
+        end =timeit.default_timer()
+        print "time taken",end-start
+        zoneindicesdict[zone]=maxval
     vals=[]
     for zonedata in zoneslice.flat:
         vals.append(zoneindicesdict[zonedata])
+
     outarr[:,:]=np.asarray(vals).reshape(outarr.shape)
 
 
 @executor
 @zonaloperation
+#Calculate the zonal minimum based on two input subdomains with raster data and zonal data
 def ZonalMinimum_exec(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
@@ -71,16 +97,25 @@ def ZonalMinimum_exec(self, subdomains):
     rasterarray=subdomains[1].get_nparray()
     zones=np.unique(zoneslice)
     zoneindicesdict={}
+    #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        zoneindicesdict[zone]=np.min(rasterarray[np.where(zonalarray==zone)])
+        start =timeit.default_timer()
+        minval=np.inf
+        for j in xrange(subdomains[2].nrows):
+            minval=min(np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)]),minval)
+        end =timeit.default_timer()
+        print "time taken",end-start
+        zoneindicesdict[zone]=minval
     vals=[]
     for zonedata in zoneslice.flat:
         vals.append(zoneindicesdict[zonedata])
+
     outarr[:,:]=np.asarray(vals).reshape(outarr.shape)
 
 
 @executor
 @zonaloperation
+#Calculate the zonal majority based on two input subdomains with raster data and zonal data
 def ZonalMajority_exec(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
@@ -98,6 +133,7 @@ def ZonalMajority_exec(self, subdomains):
 
 @executor
 @zonaloperation
+#Calculate the zonal minority based on two input subdomains with raster data and zonal data
 def ZonalMinority_exec(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
