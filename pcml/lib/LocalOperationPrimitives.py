@@ -93,7 +93,6 @@ def LocalTangent(self, locations, subdomains):
 def LocalVariety(self,locations,subdomains):
     temp=[]
     count=0
-    #print locations
     for loc in locations:
         count+=1
         if count<=len(locations):
@@ -101,8 +100,6 @@ def LocalVariety(self,locations,subdomains):
         else:
             count=0
     return len(variety(temp))    
-    #return variety(temp)
-    #return variety(locations['v'])
 def variety(i):
     return [] if i==[] else [i[0]] + variety(filter(lambda x: x!= i[0], i[1:]))
     
