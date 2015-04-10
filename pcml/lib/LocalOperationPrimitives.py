@@ -102,5 +102,40 @@ def LocalVariety(self,locations,subdomains):
     return len(variety(temp))    
 def variety(i):
     return [] if i==[] else [i[0]] + variety(filter(lambda x: x!= i[0], i[1:]))
+
+@localoperation
+def LocalMajority(self,locations,subdomains):
+    #returns most frequent of each location
+    temp=[]
+    count=0
+    #print locations
+    for loc in locations:
+        count+=1
+        if count<=len(locations):
+            temp.append(loc['v'])
+        else:
+            count=0
+    return most_common(temp)
+def most_common(lst):
+    c_len = 0
+    max_len = 0
+    c_i = 0
+    max_i = 0
+    c_item = None
+    max_item = None
+    for i, item in sorted(enumerate(lst), key=lambda x: x[1]):
+        if c_item is None or c_item != item:
+            if c_len > max_len or (c_len == max_len and c_i < max_i):
+                max_len = c_len
+                max_i = c_i
+                max_item = c_item
+            c_len = 1
+            c_i = i
+            c_item = item
+        else:
+            c_len += 1
+    if c_len > max_len or (c_len == max_len and c_i < max_i):
+        return c_item
+    return max_item
     
 
