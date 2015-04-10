@@ -89,5 +89,21 @@ def LocalTangent(self, locations, subdomains):
     # NOTE: Assumes 1 subdomain
     return math.tan(locations[0]['v'])
 
-
+@localoperation
+def LocalVariety(self,locations,subdomains):
+    temp=[]
+    count=0
+    #print locations
+    for loc in locations:
+        count+=1
+        if count<=len(locations):
+            temp.append(loc['v'])
+        else:
+            count=0
+    return len(variety(temp))    
+    #return variety(temp)
+    #return variety(locations['v'])
+def variety(i):
+    return [] if i==[] else [i[0]] + variety(filter(lambda x: x!= i[0], i[1:]))
+    
 
