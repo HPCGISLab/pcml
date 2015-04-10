@@ -163,3 +163,15 @@ def FocalSum(self, locations, subdomains):
         sum+=i
     sum=sum-arr[0,0].flatten('F')
     return sum
+
+@focaloperation
+def FocalPercentage(self, locations, subdomains):
+    #Begin with zero numerator and denominator
+    #Increment deominator by one for each loop and numerator by one if the neighborhood value matches the location value
+    num=denom=0.0
+    arr=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)
+    for i in arr.flat:
+        if locations[0]['v']==i:
+                num+=1.0
+        denom+=1.0
+    return (num/denom)*100
