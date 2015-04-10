@@ -22,12 +22,9 @@ def ZonalSum_exec(self, subdomains):
     zoneindicesdict={}
     #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        start =timeit.default_timer()
         totalsum=0
         for j in xrange(subdomains[2].nrows):
             totalsum+=np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)])
-        end =timeit.default_timer()
-        print "time taken",end-start
         zoneindicesdict[zone]=totalsum
     vals=[]
     for zonedata in zoneslice.flat:
@@ -47,12 +44,9 @@ def ZonalMean_exec(self, subdomains):
     zoneindicesdict={}
     #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        start =timeit.default_timer()
         totalsum=0
         for j in xrange(subdomains[2].nrows):
             totalsum+=np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)])
-        end =timeit.default_timer()
-        print "time taken",end-start
         zoneindicesdict[zone]=totalsum/zonalarray.size
     vals=[]
     for zonedata in zoneslice.flat:
@@ -72,12 +66,9 @@ def ZonalMaximum_exec(self, subdomains):
     zoneindicesdict={}
     #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        start =timeit.default_timer()
         maxval=np.NINF
         for j in xrange(subdomains[2].nrows):
             maxval=max(np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)]),maxval)
-        end =timeit.default_timer()
-        print "time taken",end-start
         zoneindicesdict[zone]=maxval
     vals=[]
     for zonedata in zoneslice.flat:
@@ -99,12 +90,9 @@ def ZonalMinimum_exec(self, subdomains):
     zoneindicesdict={}
     #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
-        start =timeit.default_timer()
         minval=np.inf
         for j in xrange(subdomains[2].nrows):
             minval=min(np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)]),minval)
-        end =timeit.default_timer()
-        print "time taken",end-start
         zoneindicesdict[zone]=minval
     vals=[]
     for zonedata in zoneslice.flat:
