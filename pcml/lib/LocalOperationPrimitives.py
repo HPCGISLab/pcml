@@ -1,7 +1,8 @@
 """
 Copyright (c) 2014 High-Performance Computing and GIS (HPCGIS) Laboratory. All rights reserved.
 Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
+Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu);
+Sandeep Vutla(svutla@kent.edu, sandeepvutla@yahoo.in)
 """
 from ..core.Operation import *
 from ..core.Scheduler import *
@@ -48,7 +49,7 @@ def LocalSin(self, locations, subdomains):
 
 @localoperation
 def LocalMaximum(self,locations,subdomains):
-    #Takes number of layers and returns the maximum number among the layers in particular location.
+    #Takes number of layers and returns the maximum value among the layers in particular location.
     mx=locations[0]['v']
     for i in locations:
         if mx< i['v']:
@@ -57,7 +58,7 @@ def LocalMaximum(self,locations,subdomains):
     
 @localoperation
 def LocalMinimum(self,locations,subdomains):
-    #Takes number of layers and returns the maximum number among the layers in particular location.
+    #Takes number of layers and returns the minimum value among the layers in particular location.
     mi=locations[0]['v']
     for i in locations:
         if mi> i['v']:
@@ -66,6 +67,7 @@ def LocalMinimum(self,locations,subdomains):
 
 @localoperation
 def LocalMean(self,locations,subdomains):
+    # Takes two or more layers and returns mean
     val = 0
     count=0
     for loc in locations:
@@ -81,14 +83,10 @@ def LocalDifference(self,locations,subdomains):
         val -= loc['v']
         #print loc['v']
     return val
-    
-@localoperation
-def LocalTangent(self, locations, subdomains):
-    # NOTE: Assumes 1 subdomain
-    return math.tan(locations[0]['v'])
 
 @localoperation
 def LocalVariety(self,locations,subdomains):
+    # Takes two or more layers and returns number of dissimilar values associated with respective location
     temp=[]
     count=0
     for loc in locations:
@@ -103,7 +101,7 @@ def variety(i):
 
 @localoperation
 def LocalMajority(self,locations,subdomains):
-    #returns most frequent of each location
+    #returns most frequent value of each location when muliple layers are given as input
     temp=[]
     count=0
     #print locations
@@ -136,4 +134,38 @@ def most_common(lst):
         return c_item
     return max_item
     
+@localoperation
+def LocalSine(self, locations, subdomains):
+    # NOTE: Assumes 1 subdomain
+     #takes single layer as input and returns the computed Sine of each location's value
+    return math.sin(locations[0]['v'])
+    
+@localoperation
+def LocalCosine(self,locations,subdomains):
+    # NOTE: Assumes 1 subdomain 
+    #takes single layer as input and returns the computed Cosine of each location's value
+    return math.cos(locations[0]['v'])
+    
+@localoperation
+def LocalTangent(self, locations, subdomains):
+    # NOTE: Assumes 1 subdomain
+     #takes single layer as input and returns the computed Tangent of each location's value
+    return math.tan(locations[0]['v'])
 
+@localoperation
+def LocalArcCosine(self,locations,subdomains):
+    # NOTE: Assumes 1 subdomain, takes layer as input and returns the computed ArcCosine of each location's value
+     #takes single layer as input and returns the computed ArcCosine of each location's value
+    return math.acos(locations[0]['v'])
+
+@localoperation
+def LocalArcSine(self,locations,subdomains):
+    # NOTE: Assumes 1 subdomain, takes layer as input and returns the computed ArcSine of each location's value
+    #takes single layer as input and returns the computed ArcSine of each location's value
+    return math.asin(locations[0]['v'])
+
+@localoperation
+def localArcTangent(self,locations,subdomains):
+    # NOTE: Assumes 1 subdomain, takes layer as input and returns the computed ArcTangent of each location's value
+    #takes single layer as input and returns the computed ArcTangent of each location's value
+    return math.atan(locations[0]['v'])
