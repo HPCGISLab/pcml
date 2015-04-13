@@ -143,8 +143,39 @@ def minority(ar):
         return a[0]
     else:
         return -1
-
-
+        
+@focaloperation
+def FocalMaximum(self,locations,subdomains):
+    #can take multiple layers and returns maximum number 
+    chunk=[]
+    for i in range(0,len(locations)):
+        arr=subdomains[i].bufferedlocgetarr(locations[i],self.buffersize)
+        chunk+=arr.tolist()
+    return maximum( np.asarray( chunk).flatten('C'))
+def maximum(arr):
+    iterator = iter(arr)
+    m = next(iterator)
+    for item in iterator:
+        if item > m:
+            m = item
+    return m
+    
+@focaloperation
+def FocalMinimum(self,locations,subdomains):
+    #can take multiple layers and returns minimum number 
+    chunk=[]
+    for i in range(0,len(locations)):
+        arr=subdomains[i].bufferedlocgetarr(locations[i],self.buffersize)
+        chunk+=arr.tolist()
+    return minimum( np.asarray( chunk).flatten('C'))
+def minimum(arr):
+    iterator = iter(arr)
+    m = next(iterator)
+    for item in iterator:
+        if item < m:
+            m = item
+    return m
+    
 @focaloperation
 def FocalMaximum_np(self, locations, subdomains):
     #returns maximum number in focal proximity of multiple layers
