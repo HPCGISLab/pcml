@@ -48,23 +48,21 @@ def LocalSin(self, locations, subdomains):
 
 @localoperation
 def LocalMaximum(self,locations,subdomains):
+    #Takes number of layers and returns the maximum number among the layers in particular location.
+    mx=locations[0]['v']
     for i in locations:
-        a=i['v']
-        for j in locations:
-            b=j['v']
-            if a>b:
-                c = a
-    return c
+        if mx< i['v']:
+            mx= i['v']
+    return mx
     
 @localoperation
 def LocalMinimum(self,locations,subdomains):
+    #Takes number of layers and returns the maximum number among the layers in particular location.
+    mi=locations[0]['v']
     for i in locations:
-        a=i['v']
-        for j in locations:
-            b=j['v']
-            if a<b:
-                c = a
-    return c
+        if mi> i['v']:
+            mi= i['v']
+    return mi
 
 @localoperation
 def LocalMean(self,locations,subdomains):
