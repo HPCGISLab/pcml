@@ -10,6 +10,7 @@ from ..util.OperationBuilder import *
 import numpy as np
 import types
 import math
+from collections import Counter
 
 @localoperation
 def LocalSum(self, locations, subdomains):
@@ -133,7 +134,32 @@ def most_common(lst):
     if c_len > max_len or (c_len == max_len and c_i < max_i):
         return c_item
     return max_item
-    
+
+@localoperation
+def LocalMinority(self,locations,subdomains):
+    #returns least frequent value of each location when two or more layers are given as input
+    temp=[]
+    count=0
+    #print locations
+    for loc in locations:
+        count+=1
+        if count<=len(locations):
+            temp.append(loc['v'])
+        else:
+            count=0
+    ctr = Counter(temp)
+    keys = ctr.keys()
+    vals = ctr.values()
+    least = []
+    m = min(vals)
+    for i in range(0,len(vals)):
+        if vals[i] == m:
+            least.append(keys[i])
+    if len(least)==1:
+        return least
+    else:
+        return least[:1]  
+        
 @localoperation
 def LocalSine(self, locations, subdomains):
     # NOTE: Assumes 1 subdomain
