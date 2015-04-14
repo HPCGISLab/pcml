@@ -190,7 +190,12 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         l22 = lst_to_layer([[3]*4]*4)
         lo=LocalDifference(self.l1,self.l2,l22)
         res = np.asarray([[-4]*4]*4)
-        self.assertTrue(allequal(lo._data,res))                                               
+        self.assertTrue(allequal(lo._data,res))   
+        
+    def test_localDifference_np(self):
+        l22 = lst_to_layer([[3]*4]*4)
+        lo=LocalDifference(self.l1,self.l2,l22)
+        res = np.asarray([[-4]*4]*4)
  
 class TestLayerOperationsParallel(TestLayerOperationsSerial):
     def setUp(self):
