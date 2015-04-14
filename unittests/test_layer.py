@@ -23,6 +23,13 @@ class TestLayer(unittest.TestCase):
 
         # Layer that has floating point y,x,h,w 
         self.layer5=Layer(-1.2,-3.4,5.6,7.8,"Layer Five")
+        # Layers that has predefined array values
+        self.layer6=Layer(100,0,10,10,"Layer Six")
+        arr111=np.asarray([[1]*3]*3)
+        self.layer6.set_nparray(arr111,1,10)
+        self.layer7=Layer(100,0,10,10,"Layer seven")
+        arr=np.asarray([[5]*3]*3)
+        self.layer7.set_nparray(arr,1,10)
 
     # Test the return from repr for example layers 
     def test_layer_repr(self):
