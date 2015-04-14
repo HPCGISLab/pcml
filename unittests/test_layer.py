@@ -64,12 +64,61 @@ class TestLayer(unittest.TestCase):
         with self.assertRaises(PCMLInvalidInput):
             failedlayer=Layer(0,0,1,0,'f')
 
+    
+    def test_layer_add(self):
+    #  Ensure layer addition  gives the correct output
+        layer_o=self.layer6+self.layer7
+        array1=np.asarray(layer_o.get_nparray())
+        res = np.asarray([[6]*3]*3)
+        self.assertEqual(np.all(array1==6),True)
+        self.assertTrue(allequal(layer_o._data, res))
+   # FIXME:Above test should fail for different spatial dimensions
 
+    def test_layer_sub(self):
+    # Ensure layer subtraction  gives the correct output
+        layer_o=self.layer6-self.layer7
+        array1=np.asarray(layer_o.get_nparray())
+        res = np.asarray([[-4]*3]*3)
+        self.assertEqual(np.all(array1==-4),True)
+        self.assertTrue(allequal(layer_o._data, res))
+    # FIXME:Above test should fail for different spatial dimensions
+
+    def test_layer_mul(self):
+    # Ensure layer multiplication  gives the correct output
+        layer_o=self.layer6*self.layer7
+        array1=np.asarray(layer_o.get_nparray())
+        res = np.asarray([[5]*3]*3)
+        self.assertEqual(np.all(array1==5),True)
+        self.assertTrue(allequal(layer_o._data, res))
+     # FIXME:Above test should fail for different spatial dimensions
+
+    def test_layer_div(self):
+   # Ensure layer division  gives the correct output
+        layer_o=self.layer6/self.layer7
+        array1=np.asarray(layer_o.get_nparray())
+        res = np.asarray([[0.2]*3]*3)
+        self.assertEqual(np.all(array1==0.2),True)
+        self.assertTrue(allequal(layer_o._data, res))
+    # FIXME:Above test should fail for different spatial dimensions
+    
+    
+    # To ensure duplicate layer also has same number of rows & columns and same x,y,h,w values
+    def test_layer_duplicate(self):
+        result=np.asarray([[0]*3]*3)
+        newlayer=self.layer7.duplicate()
+        array=np.asarray(newlayer.get_nparray())
+        self.assertEqual(len(result),len(array))
+        self.assertEqual(len(result[0]),len(array[0]))
+        self.assertEqual(newlayer.y,self.layer7.y)
+        self.assertEqual(newlayer.x,self.layer7.x)
+        self.assertEqual(newlayer.h,self.layer7.h)
+        self.assertEqual(newlayer.w,self.layer7.w)
+        self.assertEqual(newlayer.cellsize,self.layer7.cellsize)
+        self.assertEqual(newlayer.nodata_value,self.layer7.nodata_value)
+        self.assertEqual(np.all(array==0),True)
+        
     # FIXME: Tests to be written
     '''
-    duplicate
     decomposition
     rowdecomposition
-    __add__
-    __mul__
     '''
