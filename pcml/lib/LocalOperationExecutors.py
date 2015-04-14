@@ -131,3 +131,13 @@ def LocalProduct_np(self, subdomains):
     arr=np.multiply(subdomains[1].get_nparray(),subdomains[2].get_nparray())
     outarr[:,:]=arr
 
+
+@executor
+@localoperation
+#creating Local Zones with parameter value of 20
+def LocalClassify20_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.floor(subdomains[1].get_nparray()/20)
+    outarr[:,:]=arr
+
