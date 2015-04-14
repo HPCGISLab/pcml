@@ -4,17 +4,13 @@ Use of this source code is governed by a BSD-style license that can be found in 
 Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
 """
 from ..util.Messaging import *
+from .PCMLPrims import *
+import pcml.core.PCMLConfig as PCMLConfig
+
 
 import multiprocessing as mp
 import sys
 import time
-
-class ExecutorType():
-    """ Enumeration class. It defines which executor to apply for an operation
-    """
-    serialpython = 1
-    parallelpythonqueue = 2
-import PCMLConfig
 
 class PoolProcess( mp.Process ):
     def __init__(self, rank, numproc, lock, queue, subdomainlists,operation):
@@ -47,7 +43,7 @@ class PoolProcess( mp.Process ):
 # the function will return a value that will need to be saved in a new subdomain
 # then we will need to combine the new subdomains back into a new layer or new layers to be returned
 def scheduler(op):
-    print ("scheduling operation for execution %s"%op)
+    print("scheduling operation for execution %s"%op)
 
     # First decompose layers into multiple subdomains based on operation
     subdomainlists=op._decompositionrun()
@@ -55,14 +51,14 @@ def scheduler(op):
     exectype=PCMLConfig.exectype
 
     if exectype==ExecutorType.serialpython:
-        print "Executing in serial python"
+        print("Executing in serial python")
 
         # Call the executor for each group of subdomains in the subdomainlists
         for subdomains in subdomainlists:
             op.executor(subdomains)
 
     elif exectype==ExecutorType.parallelpythonqueue: # Parallel python version
-        print "Executing in parallel python (Queue)"
+        print("Executing in parallel python (Queue)")
 
         queue=mp.Queue()
         for i in xrange(len(subdomainlists)):
@@ -75,7 +71,7 @@ def scheduler(op):
 
         num_procs=PCMLConfig.num_procs
 
-        print "Starting",num_procs,"processes to apply",op,"to",len(subdomainlists),"subdomains"
+        print("Starting",num_procs,"processes to apply",op,"to",len(subdomainlists),"subdomains")
         pool = [PoolProcess(rank, num_procs, lock, queue, subdomainlists,op) for rank in range(num_procs)]
         for p in pool: p.start()
         for p in pool: p.join()

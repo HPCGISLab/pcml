@@ -5,12 +5,13 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfan
 """
 from .Layer import *
 from .Subdomain import *
+import pcml.core.PCMLConfig as PCMLConfig
 
 import math
 
-# Defines the number of subdomains (e.g., rows) to decompose a single layer into.
-numchunksgoal=2
-numchunksgoal=16
+# Defines the number of subdomains (e.g., rows) to decompose a single layer into. (DEPRECATED)
+#numchunksgoal=2
+#numchunksgoal=16
 
 def globalpointlistdecomposition(layer, buffersize):
     # Row decomposition supports pointlist only for globalclass operations
@@ -33,13 +34,13 @@ def globalpointlistdecomposition(layer, buffersize):
 # Take a layer and return a list of subdomains 
 def rowdecomposition(layer, buffersize):
 
-    print "Row decomposition"
+    #print("Row decomposition")
 
     # Row decomposition supports pointlist only for globalclass operations
     if layer.data_structure==Datastructure.pointlist:
         globalpointlistdecomposition(layer,buffersize)
 
-    assert(layer.data_structure==Datastructure.array)
+    assert(layer.data_structure==Datastructure.array),"Data structure is not an array"
 
     # If global then buffer size is infinite as all subdomains will have all data
     if buffersize<0: # This indicates the buffer should be infinite sized (global/zonal operation)
@@ -48,13 +49,13 @@ def rowdecomposition(layer, buffersize):
 
     # Sanity check nrows and ncols
     # FIXME: In the future this check will happen in operation._decompositioninit
-    assert(layer.nrows!=None)
-    assert(layer.ncols!=None)
+    assert(layer.nrows!=None),"Layer number of rows (nrows) is None"
+    assert(layer.ncols!=None),"Layer number of columns (ncols) is None"
 
     subdomainlist = []
 
-    # Numer of rows per subdomain given a number of chunks goal (numchunksgoal) 
-    rowspersubdomain = int(math.ceil(float(layer.nrows)/float(numchunksgoal)))
+    # Numer of rows per subdomain given suggested decomposition granularity (think number of chunks)
+    rowspersubdomain = int(math.ceil(float(layer.nrows)/float(PCMLConfig.decomposition_granularity)))
 
     # Number of subdomains to create when given rowspersubdomain
     numsubdomains = int(math.ceil(float(layer.nrows)/float(rowspersubdomain)))
@@ -76,13 +77,13 @@ def rowdecomposition(layer, buffersize):
            # Replace original r and nrows with new values
            nrows=new_h-new_r
            r=new_r
-           print "new_r",new_r,"new_h",new_h
+           #print("new_r",new_r,"new_h",new_h)
         else: # Ensure that we don't allocate more rows past the number of layer rows
             nrows=min(layer.nrows-r,nrows)
 
         # Sanity check
-        print "r",r,"nrows",nrows,"layer.nrows",layer.nrows
-        assert(r+nrows<=layer.nrows)
+        #print("r",r,"nrows",nrows,"layer.nrows",layer.nrows)
+        assert(r+nrows<=layer.nrows),"Number of rows for layer is less than total for subdomains"
 
         # In row decomposition, column index is always 0 and ncols never changes
         c = 0 
@@ -118,13 +119,13 @@ def rowdecomposition(layer, buffersize):
 # Take a layer and return a list of subdomains 
 def columndecomposition(layer, buffersize):
 
-    print "Column decomposition"
+    #print("Column decomposition")
 
     # Col decomposition supports pointlist only for globalclass operations
     if layer.data_structure==Datastructure.pointlist:
         globalpointlistdecomposition(layer,buffersize)
 
-    assert(layer.data_structure==Datastructure.array)
+    assert(layer.data_structure==Datastructure.array),"Data structure is not an array"
 
     # If global then buffer size is infinite as all subdomains will have all data
     if buffersize<0: # This indicates the buffer should be infinite sized (global/zonal operation)
@@ -133,13 +134,13 @@ def columndecomposition(layer, buffersize):
 
     # Sanity check nrows and ncols
     # FIXME: In the future this check will happen in operation._decompositioninit
-    assert(layer.nrows!=None)
-    assert(layer.ncols!=None)
+    assert(layer.nrows!=None),"Layer number of rows (nrows) is None"
+    assert(layer.ncols!=None),"Layer number of columns (ncols) is None"
 
     subdomainlist = []
 
-    # Numer of columns per subdomain given a number of chunks goal (numchunksgoal) 
-    colspersubdomain = int(math.ceil(float(layer.ncols)/float(numchunksgoal)))
+    # Numer of columns per subdomain given suggested decomposition granularity (think number of chunks) 
+    colspersubdomain = int(math.ceil(float(layer.ncols)/float(PCMLConfig.decomposition_granularity)))
 
     # Number of subdomains to create when given colspersubdomain
     numsubdomains = int(math.ceil(float(layer.ncols)/float(colspersubdomain)))
@@ -161,9 +162,11 @@ def columndecomposition(layer, buffersize):
            # Replace original c and ncols with new values
            ncols=new_w-new_c
            c=new_c
+        else: # Ensure that we don't allocate more cols than the cols in a layer
+            ncols=min(layer.ncols-c,ncols)
 
         # Sanity check
-        assert(c+ncols<=layer.ncols)
+        assert(c+ncols<=layer.ncols),"Number of columns in layer is less than total for subdomains"
 
         # In column decomposition, row index is always 0 and nrows never changes
         r = 0 

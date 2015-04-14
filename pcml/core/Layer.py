@@ -49,19 +49,23 @@ class Layer(BoundingBox):
     ### Syntax Sugar
 
     def __add__(self,right):
-        print '__add__ %s + %s' %(self.title,right.title)
+        print('__add__ %s + %s' %(self.title,right.title))
         return LocalSum(self,right)
 
     def __mul__(self,right):
-        print '__mul__ %s * %s' %(self.title,right.title)
+        print('__mul__ %s * %s' %(self.title,right.title))
         return LocalMult(self,right)
     
     def __div__(self,right):
-        print '__div__ %s / %s' %(self.title,right.title)
+        print('__div__ %s / %s' %(self.title,right.title))
+        return LocalDivision(self,right)
+
+    def __truediv__(self,right):
+        print('__div__ %s / %s' %(self.title,right.title))
         return LocalDivision(self,right)
 
     def __sub__(self,right):
-        print '__sub__ %s - %s' %(self.title,right.title)
+        print('__sub__ %s - %s' %(self.title,right.title))
         return LocalSubtraction(self,right)
 
 

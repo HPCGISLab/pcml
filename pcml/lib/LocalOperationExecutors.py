@@ -3,12 +3,51 @@ Copyright (c) 2014 High-Performance Computing and GIS (HPCGIS) Laboratory. All r
 Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
 """
+
 from ..core.Operation import *
 from ..core.Scheduler import *
 from ..util.OperationBuilder import *
 import numpy as np
 import types
 import math
+
+# Try to load numba, which is a just-in-time (jit) compiler for Python,
+# which can be used to dramatically speedup data processing even though the code is written in native python
+numbaenabled=True
+try:
+   from numba import jit 
+except ImportError as e:
+   numbaenabled=False
+
+
+if numbaenabled:
+    # FIXME: Look at http://numba.pydata.org/numba-doc/0.3/doc/examples.html#id1
+    #        numba example to make it optional for compilation
+    #        I think I can say if numba_exists: ... else just call same python function without the jit recompilation
+    #        to do this I need to remove the @jit decorator below and change it to an independent function call
+    @jit(nopython=True)
+    def numba_sum(outarr,leftarr,rightarr,nrows,ncols):
+        for i in xrange(nrows):
+            for j in xrange(ncols):
+                outarr[i,j]=leftarr[i,j]+rightarr[i,j]
+else:
+    def numba_sum(outarr,leftarr,rightarr,nrows,ncols):
+        for i in xrange(nrows):
+            for j in xrange(ncols):
+                outarr[i,j]=leftarr[i,j]+rightarr[i,j]
+
+@executor
+@localoperation
+def LocalSum_numba(self, subdomains):
+    # NOTE: Assumes 3 subdomains, first is output, second and third should be added
+    # Get the array from the output subdomain
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray() 
+    leftarr=subdomains[1].get_nparray()
+    rightarr=subdomains[2].get_nparray()
+    numba_sum(outarr,leftarr,rightarr,subdomains[1].nrows,subdomains[1].ncols)
+
+
 
 @executor
 @localoperation

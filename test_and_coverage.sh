@@ -11,9 +11,6 @@ command -v coverage >/dev/null 2>&1 || {
 	exit 1
 }
 
-# Remove old coverage data.
-#rm -Rfi .coverage
-
 # Measure, and report results.
 coverage run --source pcml -m unittest discover -b -v
 coverage report -m

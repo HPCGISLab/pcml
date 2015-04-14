@@ -6,16 +6,9 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfan
 from ..util.Messaging import *
 from .Decomposition import *
 from .BoundingBox import *
+from .Iteration import *
+from .PCMLPrims import *
 from abc import ABCMeta, abstractmethod
-
-class OpClass():
-    """ Enumeration class. Classifies operations as local, focal, zonal, or global.
-    """
-    localclass = 1
-    focalclass = 2
-    zonalclass = 3
-    globalclass = 4
-
 
 class Operation(object):
     __metaclass__ = ABCMeta
@@ -39,11 +32,12 @@ class Operation(object):
         self.opclass = kwargs.get('opclass', OpClass.localclass)
         self.buffersize = kwargs.get('buffersize', 0)
         self.decomposition = kwargs.get('decomposition',rowdecomposition) # By default use row decomposition
-        self.iterator = kwargs.get('iterator', 'rowiterator')
+        self.iteration = kwargs.get('iteration',rowmajoriteration) # By default use product-based iteration 
+
         if self.opclass==OpClass.localclass and self.buffersize != 0:
             raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
-	#If zonal operation we want the entire layer data
-	if self.opclass==OpClass.zonalclass:
+        #If zonal operation we want the entire layer data
+        if self.opclass==OpClass.zonalclass:
             self.buffersize=999999999999
 
     def __repr__(self):
@@ -63,11 +57,6 @@ class Operation(object):
         outputlayer.title="Output for operation %s"%self.name
 
         self._layers.insert(0, outputlayer)  # Add the output layer to the front of the layers list
-
-    # By default we use rowdecomposition as our decomposition method
-    # Users may override decomposition with any other method they would like
-    #def decomposition(self,layer,buffersize):
-    #    return rowdecomposition(layer,buffersize)
 
     def _decompositionrun(self):
         """ Divides the :member:_layers into subdomains for further processing.
@@ -99,6 +88,14 @@ class Operation(object):
 
         return subdomainlists
 
+    # By default we use rowdecomposition as our decomposition method
+    # Users may override decomposition with any other method they would like using kwargs (see __init__)
+    #def decomposition(layer,buffersize):
+
+    # By default we use rowmajoriteration as our iteration method
+    # Users may override iteration with any other method they would like using kwargs (see __init__)
+    #def iteration(subdomain):
+
     def executor(self,subdomains):
         """ Executor handles processing of the function by iterating over locations in a subdomain
         :return: #TODO: Undefined return value.
@@ -107,16 +104,14 @@ class Operation(object):
 
         outsubdomain = subdomains.pop(0)
         outarr = outsubdomain.get_nparray()
-        outsubdomain.set_iterator(self.iterator)
         if outsubdomain.data_structure!=Datastructure.array:
-           print "datatype",outsubdomain.data_type,"arraydt",Datastructure.array
+           print("datatype",outsubdomain.data_type,"arraydt",Datastructure.array)
            PCMLNotSupported("Executor currently assumes an array data structure")
 
         PCMLTODO("Sanity check subdomains are all the same dimensions")
 
-        # Iterate over locations in the outsubdomain and apply function to each location
-        #for locind in outsubdomain:
-        for loc in outsubdomain:
+        # Iterate over locations in the outsubdomain using iteration method and apply function to each location 
+        for loc in self.iteration(outsubdomain):
             l = [] # Create an empty list to store locations
             for sd in subdomains:
                 if sd.data_structure!=Datastructure.array: # Skip non array subdomains

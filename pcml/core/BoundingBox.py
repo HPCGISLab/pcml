@@ -5,13 +5,8 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfan
 """
 from ..util.SharedMemory import *
 from ..util.Messaging import *
+from .PCMLPrims import *
 import copy
-
-class Datastructure():
-    """ Enumeration class. Defines the type of data structure.
-    """
-    array = 1
-    pointlist = 2
 
 class BoundingBox(object):
     """
@@ -84,7 +79,7 @@ class BoundingBox(object):
         self._data=pointlist
 
     def get_pointlist(self):
-        assert(self.data_structure==Datastructure.pointlist)
+        assert(self.data_structure==Datastructure.pointlist),"Cannot get point list if datastructure is not a point list"
         return self._data
 
     def _reset_dim(self):
@@ -143,6 +138,6 @@ class BoundingBox(object):
     def print_data(self):
         """Print out all data."""
         if(self.data_structure==Datastructure.array):
-            print self._data
+            print(self._data)
         else:
             raise PCMLNotImplemented("print_data other data_structured are not supported")

@@ -4,6 +4,7 @@ Use of this source code is governed by a BSD-style license that can be found in 
 Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
 """
 from ..core.Layer import *
+import pcml.core.PCMLConfig as PCMLConfig
 
 import numpy as np
 #from linecache import getline
@@ -12,12 +13,12 @@ import fileinput
 
 try: 
    PCMLConfig.osgeoenabled=1
-   from osgeo2 import gdal
-   from osgeo2 import ogr
-   from osgeo2 import osr
-except ImportError, e:
+   from osgeo import gdal
+   from osgeo import ogr
+   from osgeo import osr
+except ImportError as e:
    PCMLConfig.osgeoenabled=0
-   if e.message != 'No module named osgeo2':
+   if e.message != 'No module named osgeo':
       raise
 
 # Assumes the following format

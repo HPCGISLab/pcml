@@ -38,7 +38,7 @@ def shmem_as_ndarray(raw_array, shape=None ):
     else:
         shape = tuple(shape)
 
-    #print ctypes.typeof(raw_array)
+    #print(ctypes.typeof(raw_array))
     #dtype = _ctypes_to_numpy[raw_array._obj._type_]
     dtype = _ctypes_to_numpy[raw_array._type_]
     class Dummy(object): pass
@@ -52,27 +52,6 @@ def shmem_as_ndarray(raw_array, shape=None ):
         'version' : 3}
     return np.asarray(d).view( dtype=dtype )
 # END FROM
-
-def NOTUSED_shmem_create_nparray(nparr):
-    """Create a shared memory array.  Copy the array 'nparr' into the shared array, return a reference"""
-    # Create shared memory data space using mp.RawArray
-    shmem_data=mp.RawArray(ctypes.c_float,nparr.size)
-    print "shmem_data",shmem_data
-    #self.__shmem_data=mp.RawArray(ctypes.c_float,nparr.size)
-
-    # Create a ndarray with the same shape (dimensions) as nparr
-    shmem_array=shmem_as_ndarray(shmem_data).reshape(nparr.shape)
-
-    # Copy the contents of nparr to shmem_array (notice [:,:] to create correct copy reference)
-    shmem_array[:,:]=nparr
-    #self._data[:,:]=nparr.astype(float)
-
-    #print " [ FIXME ] NOT USING SHMEM"
-    #a=np.zeros((len(nparr),len(nparr[0])))
-    #a[:,:]=nparr
-    #return a
-
-    return shmem_array
 
 def shmem_slice_nparray(arr,r,c,h,w):
     sliced_array=arr[r:r + h, c:c + w]
