@@ -1,7 +1,7 @@
 """
 Copyright (c) 2014 High-Performance Computing and GIS (HPCGIS) Laboratory. All rights reserved.
 Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfans@gmail.com, zfeng2@kent.edu)
+Authors and contributors: Eric Shook (eshook@kent.edu); Suman Jindam (sjindam@kent.edu)
 """
 from pcml import *
 from pcml.util.LayerBuilder import *
@@ -108,6 +108,90 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         lo = FocalMean_np(self.l6, buffersize=2)
         self.assertTrue(np.allclose(lo._data, self.l7._data))
 
+    def test_local_maximum_np(self):
+        lo = LocalMaximum_np(self.l1,self.l2)
+        res = np.asarray([[2]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_local_minimum_np(self):
+        lo = LocalMinimum_np(self.l1,self.l2)
+        res = np.asarray([[1]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_localsum_np(self):
+        lo = LocalSum_np(self.l1,self.l2)
+        res = np.asarray([[3]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_localmult_np(self):
+        lo = LocalMult_np(self.l1,self.l2)
+        res = np.asarray([[2]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_localmean_np(self):
+        lo = LocalMean_np(self.l1,self.l2)
+        res = np.asarray([[1.5]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_localproduct_np(self):
+        lo = LocalProduct_np(self.l1,self.l2)
+        res = np.asarray([[2]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_localdivision(self):
+        lo = LocalDivision(self.l1,self.l2)
+        res = np.asarray([[0.5]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+    
+
+    def test_localsubtraction(self):
+        lo = LocalSubtraction(self.l1,self.l2)
+        res = np.asarray([[-1]*4]*4)
+        self.assertTrue(allequal(lo._data, res))
+
+    def test_local_sin(self):
+        lo=LocalSin(self.l1)
+        res = np.asarray([[0.84147098]*4]*4)
+        boolean =np.allclose(res,lo.get_nparray())
+        self.assertEqual(boolean,True)
+
+    def test_local_tangent(self):
+        lo=LocalTangent(self.l1)
+        res = np.asarray([[1.55740772]*4]*4)
+        boolean =np.allclose(res,lo.get_nparray())
+        self.assertEqual(boolean,True)
+
+
+    def test_local_maximum(self):
+        l22 = lst_to_layer([[5]*4]*4)
+        lo=LocalMaximum(self.l1,self.l2,l22)
+        res = np.asarray([[5]*4]*4)
+        self.assertTrue(allequal(lo._data,res))
+
+    def test_local_minimum(self):
+        l22 = lst_to_layer([[5]*4]*4)
+        lo=LocalMinimum(self.l2,self.l1,l22)
+        res = np.asarray([[1]*4]*4)
+        self.assertTrue(allequal(lo._data,res))
+
+    def test_localmean(self):
+        l22 = lst_to_layer([[3]*4]*4)
+        lo=LocalMean(self.l1,self.l2,l22)
+        res = np.asarray([[2]*4]*4)
+        self.assertTrue(allequal(lo._data,res))
+  
+    def test_localVariety(self):
+        l22 = lst_to_layer([[3]*4]*4)
+        lo=LocalVariety(self.l1,self.l2,l22)
+        res = np.asarray([[3]*4]*4)
+        self.assertTrue(allequal(lo._data,res))
+
+    def test_localDifference(self):
+        l22 = lst_to_layer([[3]*4]*4)
+        lo=LocalDifference(self.l1,self.l2,l22)
+        res = np.asarray([[-4]*4]*4)
+        self.assertTrue(allequal(lo._data,res))                                               
+ 
 class TestLayerOperationsParallel(TestLayerOperationsSerial):
     def setUp(self):
         super(TestLayerOperationsParallel, self).setUp()
