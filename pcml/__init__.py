@@ -10,9 +10,10 @@ from .core.Subdomain import *
 from .core.Scheduler import *
 from .lib.LocalOperationExecutors import *
 from .lib.LocalOperationPrimitives import *
+from .lib.FocalOperationExecutors import *
 from .lib.FocalOperationPrimitives import *
-from .lib.GlobalOperationPrimitives import *
 from .lib.ZonalOperationPrimitives import *
 from .lib.ZonalOperationExecutors import *
+from .lib.GlobalOperationPrimitives import *
 from .lib.OperationIO import *
 

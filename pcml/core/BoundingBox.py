@@ -52,9 +52,9 @@ class BoundingBox(object):
         return "<BoundingBox: (%f,%f) [%f,%f]>" % (self.y, self.x, self.h, self.w)
 
     def set_nparray(self,nparr,cellsize,nodata_value):
-        if nparr == None:
+        if nparr is None:
             raise PCMLInvalidInput("BoundingBox.set_nparray does not support a nparr of None",nparr)
-        if cellsize == None:
+        if cellsize is None:
             raise PCMLInvalidInput("BoundingBox.set_nparray does not support a cellsize of None",cellsize)
         if cellsize<=0:
             raise PCMLInvalidInput("BoundingBox.set_nparray does not support cellsize<=0",cellsize)
