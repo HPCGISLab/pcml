@@ -103,46 +103,57 @@ def HillShade(self, locations, subdomains): # Experimental
 
 @focaloperation
 def FocalMajority(self, locations, subdomains):
-    arr=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)  
-    #applying boyre moore's voting algorithm for finding majority
-    return majority(arr)
+    #Note: Takes two or more layers as input and returns majority element respective to the location
+    chunk=[]
+    for i in range(0,len(locations)):
+        arr=subdomains[i].bufferedlocgetarr(locations[i],self.buffersize)
+        chunk+=arr.tolist()
+    return majority( np.asarray( chunk).flatten('C'))
 def majority(arr):
-    #boyre moores' voting algorithm
-    length=arr.size
-    half = length/2.0
-    counts = {}
-    for i in arr.flatten('F'):
-        if i in counts:
-            counts[i]+=1
+    c_len = 0
+    max_len = 0
+    c_i = 0
+    max_i = 0
+    c_item = None
+    maj_item = None
+    for i, item in sorted(enumerate(arr), key=lambda x: x[1]):
+        if c_item is None or c_item != item:
+            if c_len > max_len or (c_len == max_len and c_i < max_i):
+                max_len = c_len
+                max_i = c_i
+                maj_item = c_item
+            c_len = 1
+            c_i = i
+            c_item = item
         else:
-            counts[i]=1
-    a= max(counts.iteritems(), key=lambda i:i[1])
-    if a[1]>half:
-        return a[0]
-    else:
-        return -1
+            c_len += 1
+    if c_len > max_len or (c_len == max_len and c_i < max_i):
+        return c_item
+    return maj_item
 
 @focaloperation
 def FocalMinority(self, locations, subdomains):
-    ar=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)
-#applying boyre moore's voting algorithm for finding minority
-    return minority(ar)
-
-def minority(ar):
-#boyre moores' voting algorithm
-    length=ar.size
-    half = length/2.0
-    counts = {}
-    for i in ar.flatten():
-        if i in counts:
-            counts[i]+=1
-        else:
-            counts[i]=1
-    a= min(counts.iteritems(), key=lambda i:i[1])
-    if a[1] < half:
-        return a[0]
+    #takes two or more layers as input and returns minority element in respective locaitons
+    chunk=[]
+    for i in range(0,len(locations)):
+        arr=subdomains[i].bufferedlocgetarr(locations[i],self.buffersize)
+        chunk+=arr.tolist()
+    print np.asarray( chunk).flatten('C')
+    return minority(np.asarray( chunk).flatten('C'))
+                    
+def minority(temp):
+    ctr = Counter(temp)
+    keys = ctr.keys()
+    vals = ctr.values()
+    least = []
+    m = min(vals)
+    for i in range(0,len(vals)):
+        if vals[i] == m:
+            least.append(keys[i])
+    if len(least)==1:
+        return least
     else:
-        return -1
+        return least[:1] 
         
 @focaloperation
 def FocalMaximum(self,locations,subdomains):
