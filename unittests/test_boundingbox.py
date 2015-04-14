@@ -91,6 +91,9 @@ class TestBoundingBox(unittest.TestCase):
         self.bb4.set_nparray(arr,1,-10)
         self.assertTrue(allequal(self.bb4.get_nparray(), arr))
         self.assertIsNone(self.bb1.get_nparray())
+    
+     
+
 
     # FIXME: These are tests that we need
     '''
