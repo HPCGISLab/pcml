@@ -110,10 +110,9 @@ def LocalMean_np(self, subdomains):
 
 
 
-
+@executor
 @localoperation
 #finding Local Difference among the given locations
-
 def LocalDifference_np(self, subdomains):
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
