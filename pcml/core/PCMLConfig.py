@@ -5,6 +5,7 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfan
 """
 import os
 from .PCMLPrims import *
+from ..util.Messaging import *
 
 #from Scheduler import *
 
