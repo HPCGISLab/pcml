@@ -212,7 +212,7 @@ def FocalSum(self, locations, subdomains):
     sum=0.0
     for i in arr.flatten('F'):
         sum+=i
-    sum=sum-arr[0,0].flatten('F')
+    sum=sum
     return sum
 
 @focaloperation
