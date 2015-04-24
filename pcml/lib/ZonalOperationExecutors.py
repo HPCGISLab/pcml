@@ -8,7 +8,20 @@ from ..util.OperationBuilder import *
 import numpy as np
 import types
 import math
-from scipy import stats
+
+
+
+try:
+   PCMLConfig.scipyenabled=1
+   from scipy import stats
+except ImportError as e:
+   PCMLConfig.scipyenabled=0
+   if e.message != 'No module named osgeo':
+      raise
+'''
+'''
+
+
 @executor
 @zonaloperation
 #Calculate the zonal sum based on two input subdomains with raster data and zonal data
@@ -105,6 +118,9 @@ def ZonalMinimum_exec(self, subdomains):
 @zonaloperation
 #Calculate the zonal majority based on two input subdomains with raster data and zonal data
 def ZonalMajority_exec(self, subdomains):
+    if PCMLConfig.scipyenabled==0:
+        PCMLOperationError("SciPy is required, but not enabled")
+
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
     zoneslice=subdomains[2].slice_nparray(subdomains[0].r,subdomains[0].c,outsubdomain.nrows,outsubdomain.ncols)
@@ -123,6 +139,8 @@ def ZonalMajority_exec(self, subdomains):
 @zonaloperation
 #Calculate the zonal minority based on two input subdomains with raster data and zonal data
 def ZonalMinority_exec(self, subdomains):
+    if PCMLConfig.scipyenabled==0:
+        PCMLOperationError("SciPy is required, but not enabled")
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
     zoneslice=subdomains[2].slice_nparray(subdomains[0].r,subdomains[0].c,outsubdomain.nrows,outsubdomain.ncols)

@@ -8,7 +8,7 @@ from ..util.OperationBuilder import *
 import numpy as np
 import types
 import math
-from scipy import stats
+#from scipy import stats
 
 @executor
 @focaloperation

@@ -139,7 +139,7 @@ def FocalMinority(self, locations, subdomains):
     for i in range(0,len(locations)):
         arr=subdomains[i].bufferedlocgetarr(locations[i],self.buffersize)
         chunk+=arr.tolist()
-    print np.asarray( chunk).flatten('C')
+    #print np.asarray( chunk).flatten('C')
     return minority(np.asarray( chunk).flatten('C'))
                     
 def minority(temp):
