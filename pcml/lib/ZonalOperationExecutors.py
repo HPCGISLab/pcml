@@ -58,9 +58,12 @@ def ZonalMean_exec(self, subdomains):
     #code changes to reuse cache.Looping and applying numpy operation to enhance performance
     for zone in zones:
         totalsum=0
+        zonecount=0
         for j in xrange(subdomains[2].nrows):
-            totalsum+=np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)])
-        zoneindicesdict[zone]=totalsum/zonalarray.size
+            zoneindexes=np.where(zonalarray[j,]==zone)
+            totalsum+=np.sum(rasterarray[j,][zoneindexes])
+            zonecount+=zoneindexes[0].size
+        zoneindicesdict[zone]=totalsum/zonecount
     vals=[]
     for zonedata in zoneslice.flat:
         vals.append(zoneindicesdict[zonedata])
@@ -81,7 +84,9 @@ def ZonalMaximum_exec(self, subdomains):
     for zone in zones:
         maxval=np.NINF
         for j in xrange(subdomains[2].nrows):
-            maxval=max(np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)]),maxval)
+            rasterdata=rasterarray[j,][np.where(zonalarray[j,]==zone)]
+            if rasterdata.size!=0:
+                maxval=max(np.amax(rasterdata),maxval)
         zoneindicesdict[zone]=maxval
     vals=[]
     for zonedata in zoneslice.flat:
@@ -105,7 +110,9 @@ def ZonalMinimum_exec(self, subdomains):
     for zone in zones:
         minval=np.inf
         for j in xrange(subdomains[2].nrows):
-            minval=min(np.sum(rasterarray[j,][np.where(zonalarray[j,]==zone)]),minval)
+            rasterdata=rasterarray[j,][np.where(zonalarray[j,]==zone)]
+            if rasterdata.size!=0:
+                minval=min(np.amin(rasterdata),minval)
         zoneindicesdict[zone]=minval
     vals=[]
     for zonedata in zoneslice.flat:
