@@ -116,7 +116,6 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         res = np.asarray([[0.5]*4]*4)
         self.assertTrue(allequal(lo._data, res))
     
-
     def test_localsubtraction(self):
         lo = LocalSubtraction(self.l1,self.l2)
         res = np.asarray([[-1]*4]*4)
@@ -133,7 +132,6 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         res = np.asarray([[1.55740772]*4]*4)
         boolean =np.allclose(res,lo.get_nparray())
         self.assertEqual(boolean,True)
-
 
     def test_local_maximum(self):
         l22 = lst_to_layer([[5]*4]*4)
@@ -170,7 +168,7 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         lo=LocalDifference(self.l1,self.l2,l22)
         res = np.asarray([[-4]*4]*4)
         
-     def test_local_sine(self):
+    def test_local_sine(self):
         lo=LocalSine(self.l1)
         res = np.asarray([[0.84147098]*4]*4)
         boolean =np.allclose(res,lo.get_nparray())
