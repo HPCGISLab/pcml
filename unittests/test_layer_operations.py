@@ -81,33 +81,6 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         lo = self.l1 + (self.l2 + self.l3) * self.l4
         self.assertTrue(np.allclose(lo._data, self.l5._data))
 
-    def test_focalmean(self):
-        lo = FocalMean(self.l1, buffersize=1)
-        self.assertTrue(allequal(lo._data, self.l1._data), "FocalMean validation failed")
-        lo = FocalMean(self.l4, buffersize=1)
-        self.assertTrue(np.allclose(lo._data, self.l4._data))
-
-        lo = FocalMean(self.l6, buffersize=2)
-        self.assertTrue(np.allclose(lo._data, self.l7._data))
-
-    def test_focalmean_coldecomp(self):
-        lo = FocalMean(self.l1, buffersize=1,decomposition=columndecomposition)
-        self.assertTrue(allequal(lo._data, self.l1._data), "FocalMean validation failed")
-        lo = FocalMean(self.l4, buffersize=1,decomposition=columndecomposition)
-        self.assertTrue(np.allclose(lo._data, self.l4._data))
-
-        lo = FocalMean(self.l6, buffersize=2,decomposition=columndecomposition)
-        self.assertTrue(np.allclose(lo._data, self.l7._data))
-
-    def test_focalmean_np(self):
-        lo = FocalMean_np(self.l1, buffersize=1)
-        self.assertTrue(allequal(lo._data, self.l1._data), "FocalMean_np validation failed")
-        lo = FocalMean_np(self.l4, buffersize=1)
-        self.assertTrue(np.allclose(lo._data, self.l4._data))
-
-        lo = FocalMean_np(self.l6, buffersize=2)
-        self.assertTrue(np.allclose(lo._data, self.l7._data))
-
     def test_local_maximum_np(self):
         lo = LocalMaximum_np(self.l1,self.l2)
         res = np.asarray([[2]*4]*4)
