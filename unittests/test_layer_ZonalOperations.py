@@ -41,7 +41,7 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
 
         #Layer with all the positive numbers
         self.l12 = lst_to_layer([[5,3,1,6],[4,2,2,1],[3,1,6,7],[8,9,6,1]])
-         self.l13 = lst_to_layer([[1,1,1,2],[2,2,3,3],[3,4,4,4],[5,5,4,5]])
+        self.l13 = lst_to_layer([[1,1,1,2],[2,2,3,3],[3,4,4,4],[5,5,4,5]])
         #Layer with all the negative numbers
         self.l14 = lst_to_layer([[-5,-3,-1,-6],[-4,-2,-2,-1],[-3,-1,-6,-7],[-8,-9,-6,-1]])
 
@@ -95,6 +95,7 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         lo=zonalmajority(l12,l13)
         res=np.asarray([[5,5,5,5],[2,2,2,2],[6,6,6,6],[9,9,9,9]])
         self.assertTrue(allequal(lo._data,res))
+        
         #To ensure ZonalMinority operation gives the correct output with positive and negative zones
     def test_zonalminority(self):
         lo=zonalminority(self.l12,self.l13)
