@@ -21,7 +21,6 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         self.l3 = lst_to_layer([[5]*4]*4)
         self.l4 = lst_to_layer([[normolized_value(1.53)] * 13] * 9)
         self.l5 = lst_to_layer([[normolized_value(11.71)] * 4] * 4)
-
         self.l6 = lst_to_layer([range(1,5)] * 4)
         self.l7 = lst_to_layer([[2, 2.5, 2.5, 3]] * 4)
         self.l8 = ReadASCIIGrid(path.join(self.datadir, 'data_c.asc'))
