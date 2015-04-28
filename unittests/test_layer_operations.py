@@ -169,6 +169,49 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         l22 = lst_to_layer([[3]*4]*4)
         lo=LocalDifference(self.l1,self.l2,l22)
         res = np.asarray([[-4]*4]*4)
+        
+     def test_local_sine(self):
+        lo=LocalSine(self.l1)
+        res = np.asarray([[0.84147098]*4]*4)
+        boolean =np.allclose(res,lo.get_nparray())
+        self.assertEqual(boolean,True)
+
+    def test_local_cosine(self):
+        lo=LocalCosine(self.l1)
+        res = np.asarray([[0.54030230]*4]*4)
+        boolean =np.allclose(res,lo.get_nparray())
+        self.assertEqual(boolean,True)
+
+    def test_local_ArcSine(self):
+        lo=LocalArcSine(self.l1)
+        res = np.asarray([[1.57079633]*4]*4)
+        boolean =np.allclose(res,lo.get_nparray())
+        self.assertEqual(boolean,True)
+
+    def test_local_ArcCosine(self):
+        lo=LocalArcCosine(self.l1)
+        res = np.asarray([[0]*4]*4)
+        boolean =np.allclose(res,lo.get_nparray())
+        self.assertEqual(boolean,True)
+
+    def test_local_ArcTangent(self):
+        lo=localArcTangent(self.l1)
+        res = np.asarray([[0.78539816]*4]*4)
+        boolean =np.allclose(res,lo.get_nparray())
+        self.assertEqual(boolean,True)
+
+    def test_LocalClassify20_np(self):
+        lo=LocalClassify20_np(self.l1)
+        res = np.asarray([[0]*4]*4)
+        lo=LocalClassify20_np(self.l2)
+        self.assertTrue(allequal(lo._data,res))
+        self.assertTrue(allequal(lo._data,res))
+
+    def test_LocalSum_numba(self):
+        lo=LocalSum_numba(self.l1,self.l2)
+        res = np.asarray([[3]*4]*4)
+        self.assertTrue(allequal(lo._data,res))
+
  
 class TestLayerOperationsParallel(TestLayerOperationsSerial):
     def setUp(self):
