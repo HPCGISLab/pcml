@@ -151,6 +151,7 @@ class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
         res = np.asarray([[2]*4]*4)
         self.assertTrue(allequal(lo._data, res))
         
+        # To ensure FocalSum Operation  gives the correct output with different buffer sizes
     def test_focalsum(self):
         lo = FocalSum(self.l1, buffersize=1)
         res = np.asarray([[4,6,6,4],[6,9,9,6],[6,9,9,6],[4,6,6,4]])
