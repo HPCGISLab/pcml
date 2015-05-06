@@ -55,18 +55,18 @@ def rowdecomposition(layer, buffersize):
     subdomainlist = []
 
     # Numer of rows per subdomain given suggested decomposition granularity (think number of chunks)
-    rowspersubdomain = int(math.ceil(float(layer.nrows)/float(PCMLConfig.decomposition_granularity)))
+    #rowspersubdomain = int(math.ceil(float(layer.nrows)/float(PCMLConfig.decomposition_granularity)))
 
     # Number of subdomains to create when given rowspersubdomain
-    numsubdomains = int(math.ceil(float(layer.nrows)/float(rowspersubdomain)))
+    numsubdomains = int(math.ceil(float(layer.nrows)/float(PCMLConfig.decomposition_granularity)))
 
     # For each subdomain indexed by sdind, calculate the size
     for sdind in xrange(numsubdomains):
         # First row in the subdomain
-        r = rowspersubdomain*sdind
+        r = PCMLConfig.decomposition_granularity*sdind
 
         # Default number of rows for this subdomain
-        nrows = rowspersubdomain # Number of rows for this sudomain
+        nrows = PCMLConfig.decomposition_granularity # Number of rows for this sudomain
 
         if buffersize>0: # If we have a buffer (e.g., focal operation), then add the buffer 
            # A buffer will generally reduce r by buffersize and increase nrows by buffersize*2
@@ -140,18 +140,18 @@ def columndecomposition(layer, buffersize):
     subdomainlist = []
 
     # Numer of columns per subdomain given suggested decomposition granularity (think number of chunks) 
-    colspersubdomain = int(math.ceil(float(layer.ncols)/float(PCMLConfig.decomposition_granularity)))
+    #colspersubdomain = int(math.ceil(float(layer.ncols)/float(PCMLConfig.decomposition_granularity)))
 
     # Number of subdomains to create when given colspersubdomain
-    numsubdomains = int(math.ceil(float(layer.ncols)/float(colspersubdomain)))
+    numsubdomains = int(math.ceil(float(layer.ncols)/float(PCMLConfig.decomposition_granularity)))
 
     # For each subdomain indexed by sdind, calculate the size
     for sdind in xrange(numsubdomains):
         # First col in the subdomain
-        c = colspersubdomain*sdind
+        c = PCMLConfig.decomposition_granularity*sdind
 
         # Default number of columns for this subdomain
-        ncols = colspersubdomain # Number of columns for this sudomain
+        ncols = PCMLConfig.decomposition_granularity # Number of columns for this sudomain
 
         if buffersize>0: # If we have a buffer (e.g., focal operation), then add the buffer 
            # A buffer will generally reduce c by buffersize and increase ncols by buffersize*2
