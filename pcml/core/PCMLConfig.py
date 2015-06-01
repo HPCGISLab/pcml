@@ -20,6 +20,8 @@ if os.name == 'nt':
 
     # Defines the default granularity for spatial domain decomposition 
     decomposition_granularity=1
+    # Defines number of subdomains for point decomposition 
+    numsubdomains=16
 else:
     # Default number of processes to run in Linux 
     num_procs=4
@@ -29,6 +31,9 @@ else:
 
     # Defines the default granularity for spatial domain decomposition 
     decomposition_granularity=16
+    # Defines number of subdomains for point decomposition 
+    numsubdomains=16
+    
 
 
 # Number of processes to run
