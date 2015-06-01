@@ -6,7 +6,7 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfan
 from .Layer import *
 from .Subdomain import *
 import pcml.core.PCMLConfig as PCMLConfig
-
+from .PCMLPrims import *
 import math
 
 # Defines the number of subdomains (e.g., rows) to decompose a single layer into. (DEPRECATED)
@@ -198,5 +198,76 @@ def columndecomposition(layer, buffersize):
 
     return subdomainlist 
 
+#point decomposition using row strategy
+def pointrowdecomposition(layer,buffersize):
+    subdomainlist = []
+    totalsubdomains=PCMLConfig.numsubdomains
+    currenty=layer.y
+    currentwithbuffy=layer.y
+    layerblockheight=layer.h/totalsubdomains
+    for subdindex in xrange(totalsubdomains):
+        buffh=buffy=0
+        if buffersize>0:
+            buffh=min(layer.h,currenty+layerblockheight+buffersize)
+            buffy=currentwithbuffy
+        else:
+            buffh=layerblockheight
+            buffy=currenty
+        subdomain=Subdomain(currenty,layer.x,layerblockheight,layer.w,layer.title+" subdomain "+str(subdindex))
+        subdomain.buffx=layer.x
+        subdomain.buffw=layer.w
+        subdomain.buffh=buffh
+        subdomain.buffy=buffy
+        pointlist=[]
+        for point in layer.get_pointlist():
+            if subdomain.isinsidebounds(point,usehalo=True):
+                pointlist.append(point.copy())
+        #if serial execution then subdomains will need only ordinary list or else a multiprocessing list implementation
+        if PCMLConfig.exectype==ExecutorType.serialpython:
+            subdomain.set_pointlist(pointlist)
+        else:
+            subdomain.set_pointlist(pointlist,ref=True)
+        subdomainlist.append(subdomain)
+        currenty=currenty+layerblockheight
+        currentwithbuffy=max(currenty-buffersize,layer.y)
+    return subdomainlist
 
+#Create a point subdomain by using raster layer as model from point layer
+def pointsubdomainsfromrastersubdomains(pointlayer,rasterlayer,buffersize):
+    subdomainlist = []
+    rowspersubdomain = float(PCMLConfig.decomposition_granularity)
+    numsubdomains = int(math.ceil(float(rasterlayer.nrows)/float(rowspersubdomain)))
+    for sdind in xrange(numsubdomains):
+        r = rowspersubdomain*sdind
+        nrows = rowspersubdomain
+        hwithoutbuff=min(rasterlayer.nrows-r,nrows)*rasterlayer.cellsize
+        ywithoutbuff=rasterlayer.y + r * rasterlayer.cellsize
+        if buffersize>0:
+           new_r=max(0,r-buffersize)
+           new_h=min(rasterlayer.nrows,r+nrows+buffersize)
+           nrows=new_h-new_r
+           r=new_r
+        else:
+            nrows=min(rasterlayer.nrows-r,nrows)
+        y = rasterlayer.y + r * rasterlayer.cellsize
+        h = nrows * rasterlayer.cellsize
+        x = rasterlayer.x
+        w = rasterlayer.w
+        subdomain = Subdomain(ywithoutbuff, x, hwithoutbuff, w, pointlayer.title+" subdomain "+str(sdind))
+        subdomain.buffx=x
+        subdomain.buffw=w
+        subdomain.buffh=h
+        subdomain.buffy=y
+        pointlist=[]
+        for point in pointlayer.get_pointlist():
+            if subdomain.isinsidebounds(point,usehalo=True):
+                pointlist.append(point.copy())
+        subdomain.set_pointlist(pointlist)
+        subdomainlist.append(subdomain)
+    return subdomainlist
 
+def pointrasterrowdecomposition(layer,buffersize,layerlist=None):
+    if layer.data_structure==Datastructure.array:
+        return rowdecomposition(layer,buffersize)
+    elif layer.data_structure==Datastructure.pointlist and layerlist is not None:
+        return pointsubdomainsfromrastersubdomains(layer,layerlist[1],buffersize)
