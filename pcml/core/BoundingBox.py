@@ -7,7 +7,8 @@ from ..util.SharedMemory import *
 from ..util.Messaging import *
 from .PCMLPrims import *
 import copy
-
+import multiprocessing as mp
+from scipy.spatial import cKDTree
 class BoundingBox(object):
     """
     BoundingBox defines a rectangular location (y,x) + (h,w) and may contain data describing something within its boundaries.
@@ -25,6 +26,11 @@ class BoundingBox(object):
         self.x = x
         self.h = h
         self.w = w
+        #Adding buffer data for points
+        self.buffx=None
+        self.buffy=None
+        self.buffh=None
+        self.buffw = None
 
         # Sanity check
         if(h<=0):
@@ -39,7 +45,7 @@ class BoundingBox(object):
         self._data = None
         self.data_structure = Datastructure.array # FIXME: For now we assume the data_structure is an array
         self.data_type = None
-
+        self.tree=None
         # TODO: This should be looked at with dependency on data_structure/type. Perhaps a new class should be created to encapsulate data.
         # TODO: If data_structure is an array, then must describe the cellsize and set a nodata_value
         # By default set to none
@@ -73,14 +79,40 @@ class BoundingBox(object):
     def get_nparray(self):
         return self._data
 
-    def set_pointlist(self,pointlist):
+    def set_pointlist(self,pointlist,ref=False):
         self.data_structure=Datastructure.pointlist
         # FIXME: Should check if pointlist is a list datastructure
-        self._data=pointlist
+        if not ref:
+            self._data=pointlist
+        else:
+            self._data=mp.Manager().list(pointlist)
+
 
     def get_pointlist(self):
         assert(self.data_structure==Datastructure.pointlist),"Cannot get point list if datastructure is not a point list"
         return self._data
+
+    #Bounding box check
+    def isinsidebounds(self,point,usehalo=False):
+        x,y,w,h=self.x,self.y,self.w,self.h
+        if usehalo:
+            x,y,w,h=self.buffx,self.buffy,self.buffw,self.buffh
+        a=y
+        b=y+h
+        c=point['y']
+        if point['x']<x+w and point['x']>=x and point['y']<y+h and point['y']>=y:
+            return True
+        else:
+            return False
+
+    #Get points with out including halozone
+    def get_pointlistwithouthalozone(self):
+        pointswithouthalozone=[]
+        for point in self._data:
+            if self.isinsidebounds(point):
+                pointswithouthalozone.append(point)
+        return pointswithouthalozone
+
 
     def _reset_dim(self):
         nparr=self.get_nparray()
@@ -137,7 +169,38 @@ class BoundingBox(object):
 
     def print_data(self):
         """Print out all data."""
-        if(self.data_structure==Datastructure.array):
-            print(self._data)
+        print(self._data)
+
+    #Get neighbors for points using cKDTree
+    def getneighbors(self,location,count=1,radius=np.inf,excludesearchlocation=False,distreq=False):
+        if excludesearchlocation:
+            count+=1
+        if self.tree is None:
+            pointlist=self.get_pointlist()
+            pointdata=[]
+            if len(pointlist)==0:
+                if not distreq:
+                    return []
+                else:
+                    return [[],[]]
+            for point in pointlist:
+                pointdata.append([point['x'],point['y']])
+            self.tree=cKDTree(pointdata)
+        points=[location['x'],location['y']]
+        dist,neighbors=self.tree.query(points,k=count,distance_upper_bound=radius)
+        if count==1:
+            if neighbors==self.tree.n:
+                if not distreq:
+                    return []
+                else:
+                    return [[],[]]
+            else:
+                if not distreq:
+                    return [neighbors]
+                else:
+                    return [[neighbors],[dist]]
+        if not distreq:
+            return neighbors[neighbors!=self.tree.n]
         else:
-            raise PCMLNotImplemented("print_data other data_structured are not supported")
+            return [neighbors[neighbors!=self.tree.n],dist[dist!=np.inf]]
+
