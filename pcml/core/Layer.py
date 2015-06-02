@@ -7,7 +7,7 @@ from .BoundingBox import *
 from ..lib.LocalOperationPrimitives import *
 from .Decomposition import *
 from ..util.Messaging import *
-
+from .PCMLPrims import *
 class Layer(BoundingBox):
     def __init__(self,y,x,h,w,title):
         """Layer class a map layer.
@@ -24,15 +24,17 @@ class Layer(BoundingBox):
     def __repr__(self):
         return "<Layer: (%f,%f) [%f,%f] : %s>" % (self.y,self.x,self.h,self.w,self.title)
 
-
     def duplicate(self):
         """
         Create a new layer, based on this layer
-        :returns: a new layer 
+        :returns: a new layer
         """
         # FIXME: A function such as setfromlayer() should be defined that will do this automatically
         newlayer=Layer(self.y,self.x,self.h,self.w,self.title+" (duplicate)")
-        newlayer.set_nparray(np.zeros((self.nrows,self.ncols)),self.cellsize,self.nodata_value) 
+        if self.data_structure == Datastructure.array:
+            newlayer.set_nparray(np.zeros((self.nrows,self.ncols)),self.cellsize,self.nodata_value)
+        elif self.data_structure == Datastructure.pointlist:
+            newlayer.set_pointlist(self.get_pointlist())
         #TODO: PCMLTODO("Double check that all of the values are copied over")
         return newlayer
 
