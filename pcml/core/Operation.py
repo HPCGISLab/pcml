@@ -79,8 +79,8 @@ class Operation(object):
             self._layers[0].set_pointlist([])
         for layer in self._layers:
             if layer != self._layers[0]: # Skip the output layer, because it was already decomposed and added
-               #listofsubdomains.append(layer.decomposition(self.decomposition_method, self.buffersize)) # buffer size is set based on classification (L,F,Z,G)
-               if self.decomposition.__name__=='pointrasterrowdecomposition':
+                #listofsubdomains.append(layer.decomposition(self.decomposition_method, self.buffersize)) # buffer size is set based on classification (L,F,Z,G)
+                if self.decomposition.__name__=='pointrasterrowdecomposition':
                     listofsubdomains.append(self.decomposition(layer,self.buffersize,layerlist=self._layers))
                 else:
                     # Create a subdomain and populate it with the correct attribute values
