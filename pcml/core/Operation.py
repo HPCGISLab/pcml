@@ -8,6 +8,7 @@ from .Decomposition import *
 from .BoundingBox import *
 from .Iteration import *
 from .PCMLPrims import *
+from .PCMLConfig import *
 from abc import ABCMeta, abstractmethod
 
 class Operation(object):
@@ -33,7 +34,8 @@ class Operation(object):
         self.buffersize = kwargs.get('buffersize', 0)
         self.decomposition = kwargs.get('decomposition',rowdecomposition) # By default use row decomposition
         self.iteration = kwargs.get('iteration',rowmajoriteration) # By default use product-based iteration 
-
+        #adding this to get the operation specified parameter
+        self.kwargs=kwargs
         if self.opclass==OpClass.localclass and self.buffersize != 0:
             raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
         #If zonal operation we want the entire layer data
@@ -73,11 +75,16 @@ class Operation(object):
         # Decompose it with a 0 buffer
         #listofsubdomains.append(self._layers[0].decomposition(self.decomposition_method, 0))
         listofsubdomains.append(self.decomposition(self._layers[0], 0))
-
+        if self._layers[0].data_structure==Datastructure.pointlist:
+            self._layers[0].set_pointlist([])
         for layer in self._layers:
             if layer != self._layers[0]: # Skip the output layer, because it was already decomposed and added
                #listofsubdomains.append(layer.decomposition(self.decomposition_method, self.buffersize)) # buffer size is set based on classification (L,F,Z,G)
-               listofsubdomains.append(self.decomposition(layer, self.buffersize)) # buffer size is set based on classification (L,F,Z,G)
+               if self.decomposition.__name__=='pointrasterrowdecomposition':
+                    listofsubdomains.append(self.decomposition(layer,self.buffersize,layerlist=self._layers))
+                else:
+                    # Create a subdomain and populate it with the correct attribute values
+                    listofsubdomains.append(self.decomposition(layer, self.buffersize)) # buffer size is set based on classification (L,F,Z,G)
 
         # The listofsubdomains is inverted using zip and map to create a list of lists
         # so that each subdomain is grouped with the corresponding subdomain from each layer (see example below)
@@ -101,26 +108,33 @@ class Operation(object):
         :return: #TODO: Undefined return value.
         """
         PCMLTODO("executor assumes single subdomain as output, which is not universal for all operations")
-
         outsubdomain = subdomains.pop(0)
-        outarr = outsubdomain.get_nparray()
-        if outsubdomain.data_structure!=Datastructure.array:
-           print("datatype",outsubdomain.data_type,"arraydt",Datastructure.array)
-           PCMLNotSupported("Executor currently assumes an array data structure")
+        if outsubdomain.data_structure==Datastructure.pointlist:
+            pointlist=outsubdomain.get_pointlist()
+            for i in xrange(len(pointlist)):
+                val=self.function([pointlist[i]],subdomains)
+                newdict=pointlist[i].copy()
+                newdict['v']=val
+                pointlist[i]=newdict
+            if PCMLConfig.exectype==ExecutorType.serialpython:
+                self._layers[0].get_pointlist().extend(outsubdomain.get_pointlist())
+        elif outsubdomain.data_structure==Datastructure.array:
+            outarr = outsubdomain.get_nparray()
+            # Iterate over locations in the outsubdomain using iteration method and apply function to each location
+            for loc in self.iteration(outsubdomain):
+                l = [] # Create an empty list to store locations
+                for sd in subdomains:
+                    if sd.data_structure!=Datastructure.array: # Skip non array subdomains
+                        continue
+                    # Get a location in this subdomain with same coordinates as locind
+                    locv=sd.get_locval(loc)
+                    l.append(locv) # append to list of locations
+                val = self.function(l,subdomains) # Apply function to all locations
+                outarr[loc['r']-outsubdomain.r][loc['c']-outsubdomain.c]=val # Set val to outarr at locind
 
-        PCMLTODO("Sanity check subdomains are all the same dimensions")
-
-        # Iterate over locations in the outsubdomain using iteration method and apply function to each location 
-        for loc in self.iteration(outsubdomain):
-            l = [] # Create an empty list to store locations
-            for sd in subdomains:
-                if sd.data_structure!=Datastructure.array: # Skip non array subdomains
-                    continue
-                # Get a location in this subdomain with same coordinates as locind
-                locv=sd.get_locval(loc)
-                l.append(locv) # append to list of locations
-            val = self.function(l,subdomains) # Apply function to all locations
-            outarr[loc['r']-outsubdomain.r][loc['c']-outsubdomain.c]=val # Set val to outarr at locind
+    def writepointdatatooutputlayer(self,subdomainlists):
+        for subdomains in subdomainlists:
+            self._layers[0].get_pointlist().extend(subdomains[0].get_pointlist())
 
     def function(self,locations,subdomains):
         raise PCMLOperationError("Operation function is not implemented")
