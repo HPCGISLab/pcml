@@ -77,5 +77,6 @@ def scheduler(op):
         for p in pool: p.join()
     else:
         PCMLNotSupported("Scheduler does not support this exectype -"+str(exectype))
-
+    if exectype==ExecutorType.parallelpythonqueue and subdomainlists[0][0].data_structure==Datastructure.pointlist:
+        op.writepointdatatooutputlayer(subdomainlists)
     return op.getOutputLayers()
