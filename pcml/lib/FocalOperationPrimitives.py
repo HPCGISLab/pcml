@@ -226,3 +226,42 @@ def FocalPercentage(self, locations, subdomains):
                 num+=1.0
         denom+=1.0
     return (num/denom)*100
+
+@focaloperation
+def KernelDensityEstimation(self,locations,subdomains):
+    bandwidth=self.buffersize
+    locxy=subdomains[0].get_yxloc(subdomains[0].get_ind_from_loc(locations[0]))
+    #grid point center
+    locxy['x']=locxy['x']+(subdomains[0].cellsize/2)
+    locxy['y']=locxy['y']+(subdomains[0].cellsize/2)
+    indexes,distance=subdomains[1].getneighbors(locxy,count=len(subdomains[1].get_pointlist()),radius=bandwidth,distreq=True)
+    #print len(subdomains[1].get_pointlist())
+    if len(indexes)==0:
+        return 0
+    #using QUARTIC KERNEL
+    constant=3.0/(math.pi*(bandwidth**2))
+    sum=0.0
+    for i in xrange(len(indexes)):
+        x=(1.0/(bandwidth**2))*(distance[i]**2)
+        sum+=(1-x)**2
+    return constant*sum
+
+
+@focaloperation
+def InverseDistanceWeightedInterpolation(self,locations,subdomains):
+    k=2
+    bandwidth=self.buffersize
+    locxy=subdomains[0].get_yxloc(subdomains[0].get_ind_from_loc(locations[0]))
+    #grid point center
+    locxy['x']=locxy['x']+(subdomains[0].cellsize/2)
+    locxy['y']=locxy['y']+(subdomains[0].cellsize/2)
+    indexes,distance=subdomains[1].getneighbors(locxy,count=len(subdomains[1].get_pointlist()),radius=bandwidth,distreq=True)
+    if len(indexes)==0:
+        return subdomains[0].nodata_value
+    numsum=0.0
+    denomsum=0.0
+    for i in xrange(len(indexes)):
+        numsum+= subdomains[1].get_pointlist()[indexes[i]]['v']/(distance[i]**k)
+        denomsum+=1.0/(distance[i]**k)
+    return numsum/denomsum
+
