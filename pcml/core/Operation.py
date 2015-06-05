@@ -10,7 +10,7 @@ from .Iteration import *
 from .PCMLPrims import *
 from .PCMLConfig import *
 from abc import ABCMeta, abstractmethod
-
+import multiprocessing as mp
 class Operation(object):
     __metaclass__ = ABCMeta
     def __init__(self,name,*args,**kwargs):
@@ -36,17 +36,26 @@ class Operation(object):
         self.iteration = kwargs.get('iteration',rowmajoriteration) # By default use product-based iteration 
         #adding this to get the operation specified parameter
         self.kwargs=kwargs
+        self.isnonlayeroutput=kwargs.get('nonlayeroutput',False)
+        self.nonlayeroutput=None
         if self.opclass==OpClass.localclass and self.buffersize != 0:
             raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
         #If zonal operation we want the entire layer data
         if self.opclass==OpClass.zonalclass:
             self.buffersize=999999999999
 
+        if PCMLConfig.exectype==ExecutorType.serialpython:
+            self.globalresults=[]
+        elif PCMLConfig.exectype==ExecutorType.parallelpythonqueue:
+            self.globalresults=mp.Manager().list()
+
     def __repr__(self):
         return "<Operation: %s : %i layers>" % (self.name,len(self._layers))
 
     def getOutputLayers(self):
         PCMLTODO("Need to support more than one output layer")
+        if self.isnonlayeroutput:
+            return self.nonlayeroutput
         return self._layers[0]
 
     def _decompositioninit(self):

@@ -7,7 +7,7 @@ from ..util.Messaging import *
 from .PCMLPrims import *
 import pcml.core.PCMLConfig as PCMLConfig
 
-
+import numpy as np
 import multiprocessing as mp
 import sys
 import time
@@ -49,13 +49,23 @@ def scheduler(op):
     subdomainlists=op._decompositionrun()
 
     exectype=PCMLConfig.exectype
-
+    processed=np.zeros(len(subdomainlists),dtype=bool)
     if exectype==ExecutorType.serialpython:
         print("Executing in serial python")
 
         # Call the executor for each group of subdomains in the subdomainlists
         for subdomains in subdomainlists:
             op.executor(subdomains)
+        while True:
+            for i in xrange(len(subdomainlists)):
+                if subdomainlists[i][0].get_itercount()==0:
+                    processed[i]=True
+            if np.all(processed):
+                break
+            else:
+                for i in xrange(len(subdomainlists)):
+                    if processed[i]==True:
+                        op.executor(subdomainlists[i])
 
     elif exectype==ExecutorType.parallelpythonqueue: # Parallel python version
         print("Executing in parallel python (Queue)")
@@ -75,7 +85,20 @@ def scheduler(op):
         pool = [PoolProcess(rank, num_procs, lock, queue, subdomainlists,op) for rank in range(num_procs)]
         for p in pool: p.start()
         for p in pool: p.join()
-        if subdomainlists[0][0].data_structure==Datastructure.pointlist:
+        while True:
+            for i in xrange(len(subdomainlists)):
+                if subdomainlists[i][0].get_itercount()==0:
+                    processed[i]=True
+            if np.all(processed):
+                break
+            else:
+                for i in xrange(len(subdomainlists)):
+                    if processed[i]==True:
+                        queue.put(i)
+                pool = [PoolProcess(rank, num_procs, lock, queue, subdomainlists,op) for rank in range(num_procs)]
+                for p in pool: p.start()
+                for p in pool: p.join()
+        if subdomainlists[0][0].data_structure==Datastructure.pointlist and not op.isnonlayeroutput:
             op.writepointdatatooutputlayer(subdomainlists)
     else:
         PCMLNotSupported("Scheduler does not support this exectype -"+str(exectype))
