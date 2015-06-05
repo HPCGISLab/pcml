@@ -36,14 +36,16 @@ class Operation(object):
         self.iteration = kwargs.get('iteration',rowmajoriteration) # By default use product-based iteration 
         #adding this to get the operation specified parameter
         self.kwargs=kwargs
+        #Boolean to check whether the operation gives back a layer as output or not. Defaults to true
         self.isnonlayeroutput=kwargs.get('nonlayeroutput',False)
+        #Attribute to store single output
         self.nonlayeroutput=None
         if self.opclass==OpClass.localclass and self.buffersize != 0:
             raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
         #If zonal operation we want the entire layer data
         if self.opclass==OpClass.zonalclass:
             self.buffersize=999999999999
-
+        #attribute to store partial results created by sudomains which can be used between processes
         if PCMLConfig.exectype==ExecutorType.serialpython:
             self.globalresults=[]
         elif PCMLConfig.exectype==ExecutorType.parallelpythonqueue:
@@ -54,6 +56,7 @@ class Operation(object):
 
     def getOutputLayers(self):
         PCMLTODO("Need to support more than one output layer")
+        #check whether output is a nonlayer output or not
         if self.isnonlayeroutput:
             return self.nonlayeroutput
         return self._layers[0]
