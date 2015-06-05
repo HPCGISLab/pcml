@@ -27,10 +27,12 @@ class Subdomain(BoundingBox):
         # Only valid when data_structure==Datastructure.array
         self.r=None
         self.c=None
+        #iter count is used to check whether the processing for subdomain is done at scheduler level. If it is 0 then the subdomain won't be processed any more
         if PCMLConfig.exectype==ExecutorType.serialpython:
             self.itercount=0
         elif PCMLConfig.exectype==ExecutorType.parallelpythonqueue:
             self.itercount=mp.Value('i',0)
+    #getter for iter count
     def get_itercount(self):
         if PCMLConfig.exectype==ExecutorType.serialpython:
             return self.itercount
