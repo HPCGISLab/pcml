@@ -5,8 +5,9 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfan
 """
 from .BoundingBox import *
 import itertools
-
-
+import PCMLConfig
+from .PCMLPrims import *
+import multiprocessing as mp
 class Subdomain(BoundingBox):
     """Subdomain class represents a subdomain (portion) of a layer."""
 
@@ -26,6 +27,20 @@ class Subdomain(BoundingBox):
         # Only valid when data_structure==Datastructure.array
         self.r=None
         self.c=None
+        if PCMLConfig.exectype==ExecutorType.serialpython:
+            self.itercount=0
+        elif PCMLConfig.exectype==ExecutorType.parallelpythonqueue:
+            self.itercount=mp.Value('i',0)
+    def get_itercount(self):
+        if PCMLConfig.exectype==ExecutorType.serialpython:
+            return self.itercount
+        else:
+            return self.itercount.value
+    def set_itercount(self,val):
+        if PCMLConfig.exectype==ExecutorType.serialpython:
+            self.itercount=val
+        else:
+            self.itercount.value=val
 
     def __repr__(self):
         return "<Subdomain: (%f,%f) [%f,%f] : %s>" % (self.y,self.x,self.h,self.w,self.title)
