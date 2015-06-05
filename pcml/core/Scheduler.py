@@ -49,6 +49,7 @@ def scheduler(op):
     subdomainlists=op._decompositionrun()
 
     exectype=PCMLConfig.exectype
+    #boolean array to check whether subdomains are processed
     processed=np.zeros(len(subdomainlists),dtype=bool)
     if exectype==ExecutorType.serialpython:
         print("Executing in serial python")
@@ -56,10 +57,12 @@ def scheduler(op):
         # Call the executor for each group of subdomains in the subdomainlists
         for subdomains in subdomainlists:
             op.executor(subdomains)
+        #iterate till all subdomains are processed
         while True:
             for i in xrange(len(subdomainlists)):
                 if subdomainlists[i][0].get_itercount()==0:
                     processed[i]=True
+            #check if all subdomains are processed
             if np.all(processed):
                 break
             else:
@@ -85,6 +88,7 @@ def scheduler(op):
         pool = [PoolProcess(rank, num_procs, lock, queue, subdomainlists,op) for rank in range(num_procs)]
         for p in pool: p.start()
         for p in pool: p.join()
+        #iterate till all subdomains are processed
         while True:
             for i in xrange(len(subdomainlists)):
                 if subdomainlists[i][0].get_itercount()==0:
