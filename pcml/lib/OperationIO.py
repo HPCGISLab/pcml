@@ -149,7 +149,8 @@ def WriteGeoTIFF(filename, layer):
     assert(layer.data_structure==Datastructure.array)
 
     driver = gdal.GetDriverByName('GTiff')
-    out = driver.Create(filename, layer.ncols, layer.nrows, 1, gdal.GDT_CFloat64)
+    #Instead of GDT_CFloat64, GDT_Float64 is required
+    out = driver.Create(filename, layer.ncols, layer.nrows, 1, gdal.GDT_Float64)
     if out is None:
         raise PCMLException("Cannot open '"+filename+"' to write")
     out.SetGeoTransform((layer.x, layer.cellsize, 0, layer.y, 0, layer.cellsize))
