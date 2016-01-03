@@ -8,6 +8,7 @@ from ..util.OperationBuilder import *
 import numpy as np
 import types
 import math
+from numba import jit
 #from scipy import stats
 
 @executor
@@ -58,4 +59,128 @@ def FocalMean_np_exec(self, subdomains):
 
             # Take a slice of the array (inarr) based on those calculations, average the results
             outarr[roworig][colorig]=np.average(inarr[r:r + h, c:c + w])
+
+#Helper function to claculate shade using Numba
+@jit(nopython=True)
+def numbashadecalculator_new(outarray,outarrdim,inputarray,inputarrdim,parameterdata,nodata_value):
+    buffersize=1
+    for i in xrange(outarrdim[0]):
+        for j in xrange(outarrdim[1]):
+            rout,cout=i+outarrdim[2],j+outarrdim[3]
+            rin,cin=rout-inputarrdim[2],cout-inputarrdim[3]
+            r,c=rin-buffersize,cin-buffersize
+            if r<0:
+                r=0
+            if c<0:
+                c=0
+            h=buffersize+(rin-r)+1
+            if r+h > inputarrdim[0]:
+                h=inputarrdim[0]-r
+            w=buffersize+(cin-c)+1
+            if c+w > inputarrdim[1]:
+                w=inputarrdim[1]-c
+            arr=inputarray[r:r+h,c:c+w]
+            arraysize=arr.size
+            if(arraysize!= 9):
+                outarray[i][j]=nodata_value
+                continue
+            containsnodata=False
+            for ii in xrange(3):
+                for jj in xrange(3):
+                    if arr[ii][jj]==nodata_value:
+                        containsnodata=True
+                        break
+                if (containsnodata):
+                    break
+            if (containsnodata):
+                outarray[i][j]=nodata_value
+                continue
+            dzdx=((arr[2][2]+2*arr[1][2]+arr[0][2]) - (arr[2][0]+2*arr[1][0]+arr[0][0]))/ parameterdata[0]
+            dzdy=((arr[2][0]+2*arr[2][1]+arr[2][2]) - (arr[0][0]+2*arr[0][1]+arr[0][2])) / parameterdata[0]
+            xx_plus_yy = (dzdx*dzdx) + (dzdy*dzdy)
+            aspect=np.arctan2(dzdy,-dzdx)
+            shade=(parameterdata[2] - parameterdata[4] * np.sqrt(xx_plus_yy) * np.sin(aspect - parameterdata[3]))/np.sqrt(1+parameterdata[5] * xx_plus_yy)
+            if (shade <= 0):
+                shade=1.0
+            else:
+                shade=1.0 + (254.0 * shade)
+            outarray[i][j]=np.ceil(shade)   
+
+#Hillshade calculation using numba
+@executor
+@focaloperation
+def HillShade_Exec_Numba(self,subdomains): # Experimental
+    dataarray=subdomains[1].get_nparray()
+    altitude=45
+    azimuth=315
+    rtod=3.1415926535897932384626433832795/180.0 # ( pi / 180.0 )
+    outarray=subdomains[0].get_nparray()
+    sin_altRadians = np.sin(altitude*rtod)
+    azRadians=azimuth*rtod
+    z_scale_factor = 1/8.0
+    cos_altRadians_mul_z_scale_factor=np.cos(altitude * rtod) * z_scale_factor
+    square_z_scale_factor = z_scale_factor * z_scale_factor
+    parameterdata=np.array([subdomains[1].cellsize,-(subdomains[1].cellsize),sin_altRadians,azRadians,cos_altRadians_mul_z_scale_factor,square_z_scale_factor])
+    outarrdim=np.array([subdomains[0].nrows,subdomains[0].ncols,subdomains[0].r,subdomains[0].c])
+    datarrdim=np.array([subdomains[1].nrows,subdomains[1].ncols,subdomains[1].r,subdomains[1].c])
+    numbashadecalculator_new(outarray,outarrdim,dataarray,datarrdim,parameterdata,subdomains[1].nodata_value)
+
+#Helper function to calculate contour lines using numba
+def countour_line_calc(outarray,outarrdim,inputarray,inputarrdim,buffersize,nodata_value):
+    cntrline=5.0
+    for i in xrange(outarrdim[0]):
+        for j in xrange(outarrdim[1]):
+            rout,cout=i+outarrdim[2],j+outarrdim[3]
+            rin,cin=rout-inputarrdim[2],cout-inputarrdim[3]
+            r,c=rin-buffersize,cin-buffersize
+            if r<0:
+                r=0
+            if c<0:
+                c=0
+            h=buffersize+(rin-r)+1
+            if r+h > inputarrdim[0]:
+                h=inputarrdim[0]-r
+            w=buffersize+(cin-c)+1
+            if c+w > inputarrdim[1]:
+                w=inputarrdim[1]-c
+            arr=inputarray[r:r+h,c:c+w]
+            arraysize=arr.size
+            if(arraysize!= 9):
+                outarray[i][j]=nodata_value
+                continue
+            containsnodata=False
+            for ii in xrange(3):
+                for jj in xrange(3):
+                    if arr[ii][jj]==nodata_value:
+                        containsnodata=True
+                        break
+                if (containsnodata):
+                    break
+            if (containsnodata):
+                outarray[i][j]=nodata_value
+                continue
+            q=np.floor(arr[1][1]/cntrline)
+            r=arr[1][1]%cntrline
+            cutoff=(q+1)*cntrline
+            if(arr[2][1]>=cutoff or arr[1][2]>=cutoff or arr[0][1]>=cutoff or arr[1][0]>=cutoff):
+                outarray[i][j]=1
+                continue
+            sum=0
+            for tt in xrange(3):
+                for ss in xrange(3):
+                    sum=sum+arr[tt][ss]
+            if(np.floor(sum/arraysize)%10 != 0):
+                outarray[i][j]=1
+            else:
+                outarray[i][j]=0
+
+#Function to calculate contour lines using Numba
+@executor
+@focaloperation
+def Contour_Lines_Numba(self,subdomains): # Experimental
+    dataarray=subdomains[1].get_nparray()
+    outarray=subdomains[0].get_nparray()
+    outarrdim=np.array([subdomains[0].nrows,subdomains[0].ncols,subdomains[0].r,subdomains[0].c])
+    datarrdim=np.array([subdomains[1].nrows,subdomains[1].ncols,subdomains[1].r,subdomains[1].c])
+    countour_line_calc(outarray,outarrdim,dataarray,datarrdim,self.buffersize,subdomains[1].nodata_value)
 
