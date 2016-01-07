@@ -36,6 +36,7 @@ class Operation(object):
         self.iteration = kwargs.get('iteration',rowmajoriteration) # By default use product-based iteration 
         #adding this to get the operation specified parameter
         self.kwargs=kwargs
+        self.outputlayer=kwargs.get('outputlayer',None)
         if self.opclass==OpClass.localclass and self.buffersize != 0:
             raise PCMLOperationError("Buffersize should be 0 for localclass currently %s" % self.buffersize)
         #If zonal operation we want the entire layer data
@@ -54,8 +55,11 @@ class Operation(object):
         # Get the first layer
         firstlayer=self._layers[0]
 
-        # The output layer is a duplicate of the first layer
-        outputlayer=firstlayer.duplicate()
+        #if outputlayer is passed as an argument, use it, else create an outputlayer from the first layer
+        if self.outputlayer is None:
+            outputlayer=firstlayer.duplicate()
+        else:
+            outputlayer=self.outputlayer
         outputlayer.title="Output for operation %s"%self.name
 
         self._layers.insert(0, outputlayer)  # Add the output layer to the front of the layers list
