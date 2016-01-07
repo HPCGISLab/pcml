@@ -115,7 +115,8 @@ def ReadGeoTIFF(filename,bandnumber=1):
         raise PCMLException("Cannot read selected band in "+filename+" in ReadGeoTIFF")
 
     nodata_value = band.GetNoDataValue()
-
+    if nodata_value is None:
+        nodata_value=-9999
     transform = ds.GetGeoTransform()
     cellsize = transform[1]
     origin_x = transform[0]
