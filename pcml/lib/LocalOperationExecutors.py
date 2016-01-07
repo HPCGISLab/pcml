@@ -63,6 +63,18 @@ def LocalSum_np(self, subdomains):
     outarr[:,:]=arr
     # Notice we don't need to return anything, because the resulting array (arr) is copied to outsubdomain through outarr 
 
+#This method uses tiling and the data is retreived and used only here    
+@executor
+@localoperation
+def LocalSum_np_tile(self, subdomains):
+    # NOTE: Assumes 3 subdomains, first is output, second and third should be added
+    # Get the array from the output subdomain
+    subd1array=GetDataForBoundingBox(subdomains[1])
+    subd2array=GetDataForBoundingBox(subdomains[2])
+    arr=np.add(subd1array,subd2array)
+    AddBoundingBoxData(subdomains[0],arr,self.lock)
+
+
 @executor
 @localoperation
 def LocalMult_np(self, subdomains):
