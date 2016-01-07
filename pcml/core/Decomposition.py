@@ -271,3 +271,79 @@ def pointrasterrowdecomposition(layer,buffersize,layerlist=None):
         return rowdecomposition(layer,buffersize)
     elif layer.data_structure==Datastructure.pointlist and layerlist is not None:
         return pointsubdomainsfromrastersubdomains(layer,layerlist[1],buffersize)
+        
+# Take a layer and return a list of subdomains with metadata alone
+def rowdecompositionwithmetadata(layer, buffersize):
+
+    # Row decomposition supports pointlist only for globalclass operations
+    if layer.data_structure==Datastructure.pointlist:
+        globalpointlistdecomposition(layer,buffersize)
+
+    assert(layer.data_structure==Datastructure.array),"Data structure is not an array"
+
+    # If global then buffer size is infinite as all subdomains will have all data
+    if buffersize<0: # This indicates the buffer should be infinite sized (global/zonal operation)
+        buffersize=9999999999999
+        # FIXME: I should do the same global subdomain as pointlist here
+
+    # Sanity check nrows and ncols
+    # FIXME: In the future this check will happen in operation._decompositioninit
+    assert(layer.nrows!=None),"Layer number of rows (nrows) is None"
+    assert(layer.ncols!=None),"Layer number of columns (ncols) is None"
+
+    subdomainlist = []
+
+    # Numer of rows per subdomain given suggested decomposition granularity (think number of chunks)
+    #rowspersubdomain = int(math.ceil(float(layer.nrows)/float(PCMLConfig.decomposition_granularity)))
+
+    # Number of subdomains to create when given rowspersubdomain
+    numsubdomains = int(math.ceil(float(layer.nrows)/float(PCMLConfig.decomposition_granularity)))
+
+    # For each subdomain indexed by sdind, calculate the size
+    for sdind in xrange(numsubdomains):
+        # First row in the subdomain
+        r = PCMLConfig.decomposition_granularity*sdind
+
+        # Default number of rows for this subdomain
+        nrows = PCMLConfig.decomposition_granularity # Number of rows for this sudomain
+        if buffersize>0: # If we have a buffer (e.g., focal operation), then add the buffer
+           # A buffer will generally reduce r by buffersize and increase nrows by buffersize*2
+           # However, r and r+nrows must be contained within the range 0-layer.nrows
+           new_r=max(0,r-buffersize) # Calculate new r value making sure it is not negative
+           new_h=min(layer.nrows,r+nrows+buffersize) # calculate new height making sure it is <= layer.nrows
+
+           # Replace original r and nrows with new values
+           nrows=new_h-new_r
+           r=new_r
+           #print("new_r",new_r,"new_h",new_h)
+        else: # Ensure that we don't allocate more rows past the number of layer rows
+            nrows=min(layer.nrows-r,nrows)
+
+        # Sanity check
+        #print("r",r,"nrows",nrows,"layer.nrows",layer.nrows)
+        assert(r+nrows<=layer.nrows),"Number of rows for layer is less than total for subdomains"
+
+        # In row decomposition, column index is always 0 and ncols never changes
+        c = 0
+        ncols = layer.ncols
+
+        # Now derive y, x, h, w
+        y = layer.y + r * layer.cellsize
+        h = nrows * layer.cellsize
+        # In row decomposition: x and w always remain the same
+        x = layer.x
+        w = layer.w
+
+        # Create a subdomain and populate it with the correct attribute values
+        subdomain = Subdomain(y, x, h, w,layer.title)
+        subdomain.cellsize=layer.cellsize
+        subdomain.nodata_value=layer.nodata_value
+        subdomain.nsres=layer.nsres
+        subdomain.ewres=layer.ewres
+        subdomain.r=r
+        subdomain.c=c
+        subdomain.nrows=nrows
+        subdomain.ncols=ncols
+        subdomainlist.append(subdomain)
+    return subdomainlist
+
