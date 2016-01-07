@@ -37,6 +37,13 @@ class Layer(BoundingBox):
             newlayer.set_pointlist(self.get_pointlist())
         #TODO: PCMLTODO("Double check that all of the values are copied over")
         return newlayer
+        
+    #creates a duplicate layer with the necessary filename containing only metadata
+    def dupLayer(self,filename):
+        newlayer=Layer(self.y,self.x,self.h,self.w,filename)
+        newlayer.nrows,newlayer.ncols,newlayer.cellsize,newlayer.nodata_value=self.nrows,self.ncols,self.cellsize,self.nodata_value
+        return newlayer
+
 
     '''
     def decomposition(self, method, buffersize):
