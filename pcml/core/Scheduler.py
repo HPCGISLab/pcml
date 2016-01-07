@@ -20,6 +20,8 @@ class PoolProcess( mp.Process ):
         self.lock = lock
         self.queue=queue
         self.subdomainlists=subdomainlists
+        #Added this lock for parallel writing
+        operation.lock=lock
         self.operation=operation
     def run(self):
         loop=True
