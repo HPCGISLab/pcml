@@ -9,6 +9,8 @@ from .BoundingBox import *
 from .Iteration import *
 from .PCMLPrims import *
 from .PCMLConfig import *
+from .tempIO import *
+import numpy as np
 from abc import ABCMeta, abstractmethod
 
 class Operation(object):
@@ -79,6 +81,7 @@ class Operation(object):
         # Decompose it with a 0 buffer
         #listofsubdomains.append(self._layers[0].decomposition(self.decomposition_method, 0))
         listofsubdomains.append(self.decomposition(self._layers[0], 0))
+        WriteGeoTIFFNew(self._layers[0].title,self._layers[0])
         if self._layers[0].data_structure==Datastructure.pointlist:
             self._layers[0].set_pointlist([])
         for layer in self._layers:
