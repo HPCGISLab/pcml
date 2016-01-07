@@ -9,6 +9,7 @@ import numpy as np
 import types
 import math
 from numba import jit
+from .OperationIO import *
 #from scipy import stats
 
 @executor
@@ -124,6 +125,32 @@ def HillShade_Exec_Numba(self,subdomains): # Experimental
     outarrdim=np.array([subdomains[0].nrows,subdomains[0].ncols,subdomains[0].r,subdomains[0].c])
     datarrdim=np.array([subdomains[1].nrows,subdomains[1].ncols,subdomains[1].r,subdomains[1].c])
     numbashadecalculator_new(outarray,outarrdim,dataarray,datarrdim,parameterdata,subdomains[1].nodata_value)
+    
+@executor
+@focaloperation
+def HillShade_Exec_Numba_Tile(self,subdomains): # Experimental
+    dataarray=GetDataForBoundingBox(subdomains[1])
+    altitude=45
+    #altitude=60 # Override standard
+    azimuth=315
+    rtod=3.1415926535897932384626433832795/180.0 # ( pi / 180.0 )
+    #zenith_rad=(90-altitude)*rtod
+    #azimuth_rad=(360.0-azimuth+90)*rtod
+    outarray=np.zeros((subdomains[0].nrows,subdomains[0].ncols))
+    #constval=8*subdomains[1].cellsize
+    #constval=np.array([subdomains[1].nsres,subdomains[1].ewres])
+    #new stuff
+    sin_altRadians = np.sin(altitude*rtod)
+    azRadians=azimuth*rtod
+    z_scale_factor = 1/8.0
+    cos_altRadians_mul_z_scale_factor=np.cos(altitude * rtod) * z_scale_factor
+    square_z_scale_factor = z_scale_factor * z_scale_factor
+    parameterdata=np.array([subdomains[1].nsres,subdomains[1].ewres,sin_altRadians,azRadians,cos_altRadians_mul_z_scale_factor,square_z_scale_factor])
+    outarrdim=np.array([subdomains[0].nrows,subdomains[0].ncols,subdomains[0].r,subdomains[0].c])
+    datarrdim=np.array([subdomains[1].nrows,subdomains[1].ncols,subdomains[1].r,subdomains[1].c])
+    numbashadecalculator_new(outarray,outarrdim,dataarray,datarrdim,parameterdata,subdomains[1].nodata_value)
+    AddBoundingBoxData(subdomains[0],outarray,self.lock)
+
 
 #Helper function to calculate contour lines using numba
 def countour_line_calc(outarray,outarrdim,inputarray,inputarrdim,buffersize,nodata_value):
