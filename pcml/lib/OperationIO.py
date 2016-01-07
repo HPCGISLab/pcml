@@ -161,4 +161,86 @@ def WriteGeoTIFF(filename, layer):
     outSRS.ImportFromEPSG(4326)
     out.SetProjection(outSRS.ExportToWkt())
     outband.FlushCache()
+    
+#Read metadata from raster,data is not read in
+def ReadRasterMetaData(filename,bandnumber=1):
+    if PCMLConfig.osgeoenabled==0:
+       PCMLUserInformation("ReadGeoTIFF is disabled, because PCML could not find osgeo or gdal library")
+       return None
+    ds = gdal.Open(filename) # Open gdal dataset
+    if ds is None:
+        raise PCMLException("Cannot open "+filename+" in ReadGeoTIFF")
+    # By default get the first band
+    band = ds.GetRasterBand(bandnumber)
+    ncols = ds.RasterXSize
+    nrows = ds.RasterYSize
+    if band is None:
+        raise PCMLException("Cannot read selected band in "+filename+" in ReadGeoTIFF")
+    nodata_value = band.GetNoDataValue()
+    if nodata_value is None:
+        nodata_value=-9999.0
+    transform = ds.GetGeoTransform()
+    cellsize = transform[1]
+    origin_x = transform[0]
+    origin_y = transform[3]
+    x=origin_x
+    y=origin_y-nrows*cellsize
+    if(abs(transform[1])!=abs(transform[5])): # pixelwidth=1, pixelheight=5
+        PCMLUserInformation("Cells of different height and width selecting width not height")
+    h=int(nrows)*cellsize
+    w=int(ncols)*cellsize
+    layer = Layer(y,x,h,w,filename)
+    layer.nodata_value=nodata_value
+    layer.cellsize=cellsize
+    layer.ncols=int(ncols)
+    layer.nrows=int(nrows)
+    del transform
+    del band
+    del ds
+    ds=None # Close gdal dataset
+    band=None
+    return layer
+    
+#Given a bounding box with metadata, will retrieve the data array
+def GetDataForBoundingBox(boundingbox,bandnumber=1):
+    if PCMLConfig.osgeoenabled==0:
+       PCMLUserInformation("ReadGeoTIFF is disabled, because PCML could not find osgeo or gdal library")
+       return None
+    ds = gdal.Open(boundingbox.title) # Open gdal dataset
+    if ds is None:
+        raise PCMLException("Cannot open "+filename+" in ReadGeoTIFF")
+    # By default get the first band
+    band = ds.GetRasterBand(bandnumber)
+    newarr=band.ReadAsArray(boundingbox.c,boundingbox.r,boundingbox.ncols,boundingbox.nrows).astype("float64")
+    ds=None # Close gdal dataset
+    band=None
+    return newarr
+    
+#Given a bounding box with metadata,an array with data and an optional lock writes the data to output file.
+def AddBoundingBoxData(boundingbox,data,lock,bandnumber=1):
+    if PCMLConfig.osgeoenabled==0:
+       PCMLUserInformation("ReadGeoTIFF is disabled, because PCML could not find osgeo or gdal library")
+       return None
+    if lock is not None:
+        lock.acquire()
+    ds = gdal.Open(boundingbox.title,gdal.GA_Update) # Open gdal dataset
+    if ds is None:
+        raise PCMLException("Cannot open "+filename+" in ReadGeoTIFF")
+    band = ds.GetRasterBand(bandnumber)
+    newarr=band.ReadAsArray(boundingbox.c,boundingbox.r,boundingbox.ncols,boundingbox.nrows).astype("float64")
+    newarr[:]=data[:]
+    band.WriteArray(newarr,boundingbox.c,boundingbox.r)
+    band.FlushCache()
+    del band
+    del ds
+    del newarr
+    band=None
+    ds=None
+    newarr=None
+    if lock is not None:
+        lock.release()
+    
+
+
+
 
