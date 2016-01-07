@@ -63,7 +63,7 @@ def scheduler(op):
         queue=mp.Queue()
         for i in xrange(len(subdomainlists)):
             queue.put(i)
-            time.sleep(0.05) # Inserted to solve a bug in Python that is acknowledged online
+            #time.sleep(0.05) # Inserted to solve a bug in Python that is acknowledged online
             # https://pythonadventures.wordpress.com/tag/processes/
             # http://stackoverflow.com/questions/10607553/python-multiprocessing-queue-what-to-do-when-the-receiving-process-quits
 
