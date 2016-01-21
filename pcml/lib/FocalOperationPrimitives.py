@@ -7,6 +7,7 @@ Sandeep Vutla (svutla@kent.edu, sandeepvutla@yahoo.in); Gowtham Kukkadapu (gkukk
 from ..core.Operation import *
 from ..core.Scheduler import *
 from ..util.OperationBuilder import *
+from OperationIO import *
 import numpy as np
 import types
 import math
@@ -234,17 +235,112 @@ def KernelDensityEstimation(self,locations,subdomains):
     #grid point center
     locxy['x']=locxy['x']+(subdomains[0].cellsize/2)
     locxy['y']=locxy['y']+(subdomains[0].cellsize/2)
+
     indexes,distance=subdomains[1].getneighbors(locxy,count=len(subdomains[1].get_pointlist()),radius=bandwidth,distreq=True)
-    #print len(subdomains[1].get_pointlist())
-    if len(indexes)==0:
-        return 0
-    #using QUARTIC KERNEL
-    constant=3.0/(math.pi*(bandwidth**2))
+
+    points = subdomains[1].get_pointlist()
+
+    # using QUARTIC KERNEL
     sum=0.0
-    for i in xrange(len(indexes)):
+    for i in xrange(len(distance)):
+        x=(1.0/(bandwidth**2))*(distance[i]**2)
+        sum+=((1-x)**2) * points[i]['v'] # Multiply the end result by 'v' which is the equivalent of adding that many points
+    sum*=100 # FIXME: Remove this temporary multiplier in the future
+
+    return sum * 3.0 / (math.pi*(bandwidth**2))
+
+@focaloperation
+def STKernelDensityEstimation_helper(self,locations,subdomains):
+    bandwidth=self.buffersize
+    duration = self.duration
+    curtime = self.curtime
+    #print "curtime",curtime,"duration",duration
+    locxy=subdomains[0].get_yxloc(subdomains[0].get_ind_from_loc(locations[0]))
+    #grid point center
+    locxy['x']=locxy['x']+(subdomains[0].cellsize/2)
+    locxy['y']=locxy['y']+(subdomains[0].cellsize/2)
+
+    indexes,distance=subdomains[1].getneighbors(locxy,count=len(subdomains[1].get_pointlist()),radius=bandwidth,distreq=True)
+
+    points = subdomains[1].get_pointlist()
+
+    # using QUARTIC KERNEL
+    sum=0.0
+    for i in xrange(len(distance)):
+        t = points[i]['t'] # Time of the point
+        if t < curtime or t > curtime + duration:
+            continue # Skip points outside of the cylinder
         x=(1.0/(bandwidth**2))*(distance[i]**2)
         sum+=(1-x)**2
+    sum*=100 # FIXME: Remove this temporary multiplier in the future
+
+    return sum * 3.0 / (math.pi*(bandwidth**2))
+
+def STKernelDensityEstimation(raster_layer, point_layer, buffersize=0.5, duration=24, step=4, filenamebase="tmp_"):
+    
+    # Find start time for point_layer
+    mintime=99999999999
+    maxtime=-99999999999
+    for p in point_layer.get_pointlist():
+        mintime=min(p['t'],mintime)
+        maxtime=max(p['t'],maxtime)
+    print "mintime=",mintime
+    print "maxtime=",maxtime
+
+    curtime=mintime
+    stkdes = []
+    index = 0
+
+    filtered_point_layer = Layer(point_layer.y, point_layer.x, point_layer.h, point_layer.w, "STKDE Point List")
+
+    while curtime < maxtime:
+
+        # Create a new list
+        filtered_pointlist = []
+        for p in point_layer.get_pointlist(): # Iterate over all points
+            if p['t'] >= curtime and p['t'] <= curtime + duration: # If within time window
+                filtered_pointlist.append(p) # Add to new list
+        
+        #print "curtime",curtime,"duration",duration,"maxtime",maxtime
+
+        filtered_point_layer.set_pointlist(filtered_pointlist)
+
+        #stkde = STKernelDensityEstimation_helper(raster_layer,filtered_point_layer,buffersize=buffersize,curtime=curtime,duration=duration)
+        stkde = KernelDensityEstimation(raster_layer,filtered_point_layer,buffersize=buffersize) # Call normal KDE, because pionts are already time filtered
+
+        # Write to base instead of adding to list
+        WriteASCIIGrid(filenamebase+str(index)+".asc",stkde)
+        #stkdes.append(stkde)
+
+        del(stkde._data)
+        del(stkde)
+
+        del(filtered_pointlist)
+
+        curtime += step
+        index += 1
+
+    return stkdes
+
+
+'''
+    if len(distance)==0:
+        return 0
+    constant=3.0/(math.pi*(bandwidth**2))
     return constant*sum
+'''
+
+'''
+# FIXME: Old comments
+
+    if ( constant*sum > 9996 and constant*sum < 9997 ) or ( constant*sum > 8654 and constant*sum < 8655 ):
+        print "problem here"
+        print "constantsum",constant*sum
+        print subdomains[1].get_pointlist()
+        print "indexes",indexes
+        print "distanc",distance
+        print locxy
+'''
 
 
 @focaloperation

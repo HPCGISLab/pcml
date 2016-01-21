@@ -89,7 +89,7 @@ def WriteASCIIGrid(filename, layer):
     string += "NODATA_value %f\n" % layer.nodata_value
     arr = layer.get_nparray()
     assert(layer.data_structure==Datastructure.array)
-    for i in xrange(layer.nrows):
+    for i in reversed(xrange(layer.nrows)):
         for j in xrange(layer.ncols):
             string += (PCMLConfig.value_precision + ' ') % arr[i][j]
         string += "\n"
