@@ -134,3 +134,10 @@ def localArcTangent(self,locations,subdomains):
     # NOTE: Assumes 1 subdomain, takes layer as input and returns the computed ArcTangent of each location's value
     #takes single layer as input and returns the computed ArcTangent of each location's value
     return math.atan(locations[0]['v'])
+
+@localoperation
+def LocalNotEqual(self, locations, subdomains):
+    # NOTE: Assumes 2 subdomains for not equal.
+    location0=locations[0]
+    location1=locations[1]
+    return location0['v']!=location1['v']
