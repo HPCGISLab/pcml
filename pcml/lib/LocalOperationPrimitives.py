@@ -138,6 +138,5 @@ def localArcTangent(self,locations,subdomains):
 @localoperation
 def LocalNotEqual(self, locations, subdomains):
     # NOTE: Assumes 2 subdomains for not equal.
-    location0=locations[0]
-    location1=locations[1]
-    return location0['v']!=location1['v']
+    # Cheng Zhang 02/19/2016
+    return location[0]['v']!=location[1]['v']
