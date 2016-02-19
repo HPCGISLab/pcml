@@ -135,6 +135,23 @@ def localArcTangent(self,locations,subdomains):
     #takes single layer as input and returns the computed ArcTangent of each location's value
     return math.atan(locations[0]['v'])
 
+def LocalNotEqual(self, locations, subdomains):
+    # NOTE: Assumes 2 subdomains for not equal.
+    # Cheng Zhang 02/19/2016
+    return int(location[0]['v'] != location[1]['v'])
+
+@localoperation
+def LocalLessThan(self, locations, subdomains):
+    # NOTE: Assumes 2 subdomains for less than.
+    # Cheng Zhang 02/19/2016
+    return int(location[0]['v'] < location[1]['v'])
+
+@localoperation
+def LocalGreaterThan(self, locations, subdomains):
+    # NOTE: Assumes 2 subdomains for greater than.
+    # Cheng Zhang 02/19/2016
+    return int(location[0]['v'] > location[1]['v'])
+
 @localoperation
 def LocalNegate(self,locations,subdomains):
     #This gets a location and negates the value at the location
@@ -154,3 +171,4 @@ def LocalXor(self,locations,subdomains):
 def LocalNot(self,locations,subdomains):
     #This gets a location and do a logical not
     return ~(locations[0]['v'])
+
