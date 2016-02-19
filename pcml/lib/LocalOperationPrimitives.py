@@ -140,3 +140,15 @@ def LocalNotEqual(self, locations, subdomains):
     # NOTE: Assumes 2 subdomains for not equal.
     # Cheng Zhang 02/19/2016
     return location[0]['v']!=location[1]['v']
+
+@localoperation
+def LocalLessThan(self, locations, subdomains):
+    # NOTE: Assumes 2 subdomains for less than.
+    # Cheng Zhang 02/19/2016
+    return location[0]['v']<location[1]['v']
+
+@localoperation
+def LocalGreaterThan(self, locations, subdomains):
+    # NOTE: Assumes 2 subdomains for greater than.
+    # Cheng Zhang 02/19/2016
+    return location[0]['v']>location[1]['v']
