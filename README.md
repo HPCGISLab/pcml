@@ -30,6 +30,7 @@ Please also see `test.py` or `examples.py` for additional examples.
 
 Windows Installation
 ------------
+For detailed instructions please see https://github.com/HPCGISLab/pcml/blob/master/demo_30min_install.pdf
 
 #### 0. Download and install Ananconda (Optional)
 
