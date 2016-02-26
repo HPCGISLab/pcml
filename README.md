@@ -14,7 +14,7 @@ operations while hiding the implementation complexities of parallelism.
 Example
 -------
 
-PCML is designed to be simple to use for cartographic modeling.  The example below demonstrates the usability of PCML.  First users import the PCML files.  The second line configures PCML to use 4 processing cores for parallel processing, which is the default number.  Next the users will read an ASCII grid file and a GeoTIFF file as layer1 and layer2, respectively.  The two layers are added together using a LocalSum raster operation, which generates an output layers (layer_out).
+PCML is easy to use for parallel spatial data processing.  First, users import PCML.  The second line tells PCML to use 4 processing cores for parallel processing.  Next, the users will read an ASCII grid file and a GeoTIFF file as layer1 and layer2, respectively.  The two layers are added together using a LocalSum raster operation. The output output layer (layer_out) is printed to the screen.
 
 
     from pcml import *
@@ -25,39 +25,31 @@ PCML is designed to be simple to use for cartographic modeling.  The example bel
     layer_out.print_data()
 
 
-Please also see `test.py` for additional examples.
+Please also see `test.py` or `examples.py` for additional examples.
 
 
-
-Installation
+Windows Installation
 ------------
+For detailed instructions please see https://github.com/HPCGISLab/pcml/blob/master/demo_30min_install.pdf
 
-### 1. Make sure that `pip` and `setuptools` are installed in your current Python environment (global or a virtualenv).
+#### 0. Download and install Ananconda (Optional)
 
-### 2. Install GDAL library
+   The Anaconda Python distribution package is available at http://continuum.io/downloads.
+   It provides Python and several Python packages, but can be skipped if you have Python already.
 
-    $ sudo apt-get install libgdal-dev
+#### 1. Download PCML
+   Navigate to the PCML page on GitHub at https://github.com/hpcgislab/pcml
 
-or
+   Click "Download ZIP"
 
-    $ su -c 'yum install gdal-devel gdal-libs'
+#### 2.	Unzip PCML
 
-*The command may vary according to package manager and system.*
+   A file named “PCML-master.zip” will be downloaded to your computer. Unzip it.
 
-### 3. Install the required dependencies
+#### 3. Open ‘demo_30min.py’ 
 
-    $ pip install -r requirements.txt
+   Open 'demo_30min.py' by clicking File->Open in the Spyder editor (included in the Ananconda package)
 
-### 4. Finally, install
+#### 4. Create your own LocalSum function in under 30 minutes!
 
-    $ python setup.py install
-
-<!-- TODO: platform/distribution specific troubleshooting. -->
-
-
-
-Build status
-------------
-
-[![wercker status](https://app.wercker.com/status/99dd16339b190c2ab04db505fa7af57a/m "wercker status")](https://app.wercker.com/project/bykey/99dd16339b190c2ab04db505fa7af57a)
-
+#### 5. Run PCML and start processing spatial data in parallel
