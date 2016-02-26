@@ -11,35 +11,11 @@ cyberGIScientists that is designed for (1) usability, (2) programmability, and
 (3) scalability. PCML provides multi-core parallel processing for spatial 
 operations while hiding the implementation complexities of parallelism. 
 
-
-Installation
-------------
-
-### 1. Make sure that `pip` and `setuptools` are installed in your current Python environment (global or a virtualenv).
-
-### 2. Install GDAL library
-
-    $ sudo apt-get install libgdal-dev
-
-or
-
-    $ su -c 'yum install gdal-devel gdal-libs'
-
-*The command may vary according to package manager and system.*
-
-### 3. Install the required dependencies
-
-    $ pip install -r requirements.txt
-
-### 4. Finally, install
-
-    $ python setup.py install
-
-<!-- TODO: platform/distribution specific troubleshooting. -->
-
-
 Example
 -------
+
+PCML is easy to use for parallel spatial data processing.  First, users import PCML.  The second line tells PCML to use 4 processing cores for parallel processing.  Next, the users will read an ASCII grid file and a GeoTIFF file as layer1 and layer2, respectively.  The two layers are added together using a LocalSum raster operation. The output output layer (layer_out) is printed to the screen.
+
 
     from pcml import *
     PCMLConfig.num_procs = 4 # Run computation in 4 processes (default)
@@ -49,11 +25,31 @@ Example
     layer_out.print_data()
 
 
-Please also see `test.py` for additional working examples.
+Please also see `test.py` or `examples.py` for additional examples.
 
 
-Build status
+Windows Installation
 ------------
+For detailed instructions please see https://github.com/HPCGISLab/pcml/blob/master/demo_30min_install.pdf
 
-[![wercker status](https://app.wercker.com/status/99dd16339b190c2ab04db505fa7af57a/m "wercker status")](https://app.wercker.com/project/bykey/99dd16339b190c2ab04db505fa7af57a)
+#### 0. Download and install Ananconda (Optional)
 
+   The Anaconda Python distribution package is available at http://continuum.io/downloads.
+   It provides Python and several Python packages, but can be skipped if you have Python already.
+
+#### 1. Download PCML
+   Navigate to the PCML page on GitHub at https://github.com/hpcgislab/pcml
+
+   Click "Download ZIP"
+
+#### 2.	Unzip PCML
+
+   A file named “PCML-master.zip” will be downloaded to your computer. Unzip it.
+
+#### 3. Open ‘demo_30min.py’ 
+
+   Open 'demo_30min.py' by clicking File->Open in the Spyder editor (included in the Ananconda package)
+
+#### 4. Create your own LocalSum function in under 30 minutes!
+
+#### 5. Run PCML and start processing spatial data in parallel

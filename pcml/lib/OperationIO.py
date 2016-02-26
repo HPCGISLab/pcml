@@ -89,7 +89,7 @@ def WriteASCIIGrid(filename, layer):
     string += "NODATA_value %f\n" % layer.nodata_value
     arr = layer.get_nparray()
     assert(layer.data_structure==Datastructure.array)
-    for i in xrange(layer.nrows):
+    for i in reversed(xrange(layer.nrows)):
         for j in xrange(layer.ncols):
             string += (PCMLConfig.value_precision + ' ') % arr[i][j]
         string += "\n"
@@ -115,7 +115,8 @@ def ReadGeoTIFF(filename,bandnumber=1):
         raise PCMLException("Cannot read selected band in "+filename+" in ReadGeoTIFF")
 
     nodata_value = band.GetNoDataValue()
-
+    if nodata_value is None:
+        nodata_value=-9999
     transform = ds.GetGeoTransform()
     cellsize = transform[1]
     origin_x = transform[0]
@@ -149,7 +150,8 @@ def WriteGeoTIFF(filename, layer):
     assert(layer.data_structure==Datastructure.array)
 
     driver = gdal.GetDriverByName('GTiff')
-    out = driver.Create(filename, layer.ncols, layer.nrows, 1, gdal.GDT_CFloat64)
+    #Instead of GDT_CFloat64, GDT_Float64 is required
+    out = driver.Create(filename, layer.ncols, layer.nrows, 1, gdal.GDT_Float64)
     if out is None:
         raise PCMLException("Cannot open '"+filename+"' to write")
     out.SetGeoTransform((layer.x, layer.cellsize, 0, layer.y, 0, layer.cellsize))
