@@ -8,21 +8,23 @@ from ..lib.LocalOperationPrimitives import *
 from .Decomposition import *
 from ..util.Messaging import *
 from .PCMLPrims import *
+
+
 class Layer(BoundingBox):
-    def __init__(self,y,x,h,w,title):
+    def __init__(self, y, x, h, w, title):
         """Layer class a map layer.
         Args:
             :param y (double): The y location (lower left corner typically) of the :class:`Layer`.
-            :param x (double): The x location (lower left corner typically) of the :class:`Layer`. 
-            :param h (double): The height of the :class:`Layer`. 
-            :param w (double): The width of the :class:`Layer`. 
+            :param x (double): The x location (lower left corner typically) of the :class:`Layer`.
+            :param h (double): The height of the :class:`Layer`.
+            :param w (double): The width of the :class:`Layer`.
             :param title (str): The title of the :class:`Layer`
         """
         super(Layer, self).__init__(y, x, h, w)
         self.title = title
 
     def __repr__(self):
-        return "<Layer: (%f,%f) [%f,%f] : %s>" % (self.y,self.x,self.h,self.w,self.title)
+        return "<Layer: (%f,%f) [%f,%f] : %s>" % (self.y, self.x, self.h, self.w, self.title)
 
     def duplicate(self):
         """
@@ -30,12 +32,12 @@ class Layer(BoundingBox):
         :returns: a new layer
         """
         # FIXME: A function such as setfromlayer() should be defined that will do this automatically
-        newlayer=Layer(self.y,self.x,self.h,self.w,self.title+" (duplicate)")
+        newlayer = Layer(self.y, self.x, self.h, self.w, self.title + " (duplicate)")
         if self.data_structure == Datastructure.array:
-            newlayer.set_nparray(np.zeros((self.nrows,self.ncols)),self.cellsize,self.nodata_value)
+            newlayer.set_nparray(np.zeros((self.nrows, self.ncols)), self.cellsize, self.nodata_value)
         elif self.data_structure == Datastructure.pointlist:
             newlayer.set_pointlist(self.get_pointlist())
-        #TODO: PCMLTODO("Double check that all of the values are copied over")
+        # TODO: PCMLTODO("Double check that all of the values are copied over")
         return newlayer
 
     '''
@@ -48,27 +50,24 @@ class Layer(BoundingBox):
             raise PCMLNotImplemented("Other decomposition methods are not implemented yet")
     '''
 
-    ### Syntax Sugar
+    # Syntax Sugar
 
-    def __add__(self,right):
-        print('__add__ %s + %s' %(self.title,right.title))
-        return LocalSum(self,right)
+    def __add__(self, right):
+        print('__add__ %s + %s' % (self.title, right.title))
+        return LocalSum(self, right)
 
-    def __mul__(self,right):
-        print('__mul__ %s * %s' %(self.title,right.title))
-        return LocalMult(self,right)
-    
-    def __div__(self,right):
-        print('__div__ %s / %s' %(self.title,right.title))
-        return LocalDivision(self,right)
+    def __mul__(self, right):
+        print('__mul__ %s * %s' % (self.title, right.title))
+        return LocalMult(self, right)
 
-    def __truediv__(self,right):
-        print('__div__ %s / %s' %(self.title,right.title))
-        return LocalDivision(self,right)
+    def __div__(self, right):
+        print('__div__ %s / %s' % (self.title, right.title))
+        return LocalDivision(self, right)
 
-    def __sub__(self,right):
-        print('__sub__ %s - %s' %(self.title,right.title))
-        return LocalSubtraction(self,right)
+    def __truediv__(self, right):
+        print('__div__ %s / %s' % (self.title, right.title))
+        return LocalDivision(self, right)
 
-
-
+    def __sub__(self, right):
+        print('__sub__ %s - %s' % (self.title, right.title))
+        return LocalSubtraction(self, right)

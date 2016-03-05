@@ -15,18 +15,17 @@ class Subdomain(BoundingBox):
         :class:`Subdomain` objects are generators, iterating over a subdomain object will give you all locations in the subdomain.
         Args:
             :param y (double): The y location (lower left corner typically) of the :class:`BoundingBox`.
-            :param x (double): The x location (lower left corner typically) of the :class:`BoundingBox`. 
-            :param h (double): The height of the :class:`BoundingBox`. 
-            :param w (double): The width of the :class:`BoundingBox`. 
+            :param x (double): The x location (lower left corner typically) of the :class:`BoundingBox`.
+            :param h (double): The height of the :class:`BoundingBox`.
+            :param w (double): The width of the :class:`BoundingBox`.
             :param title (str): title(name) of the portion
         """
         super(Subdomain, self).__init__(y, x, h, w)
-        self.title=title
+        self.title = title
 
         # Only valid when data_structure==Datastructure.array
-        self.r=None
-        self.c=None
+        self.r = None
+        self.c = None
 
     def __repr__(self):
-        return "<Subdomain: (%f,%f) [%f,%f] : %s>" % (self.y,self.x,self.h,self.w,self.title)
-
+        return "<Subdomain: (%f,%f) [%f,%f] : %s>" % (self.y, self.x, self.h, self.w, self.title)

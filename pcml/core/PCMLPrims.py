@@ -4,12 +4,14 @@ Use of this source code is governed by a BSD-style license that can be found in 
 Authors and contributors: Eric Shook (eshook@kent.edu)
 """
 
+
 # Define data structures supported in PCML
 class Datastructure():
     """ Enumeration class. Defines the type of data structure.
     """
     array = 1
     pointlist = 2
+
 
 # Define the type of Executor to use in the Scheduler
 class ExecutorType():
@@ -26,5 +28,3 @@ class OpClass():
     focalclass = 2
     zonalclass = 3
     globalclass = 4
-
-
