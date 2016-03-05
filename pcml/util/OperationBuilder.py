@@ -8,6 +8,7 @@ from ..core.Scheduler import *
 from ..util.Messaging import PCMLOperationError
 import types
 
+
 class OperationDecorator:
     def __init__(self, opclass=OpClass.localclass, override='function', **kwargs):
         """ When user write "@operation(opclass=OpClass.focalclass, override='exectuor')",
@@ -64,6 +65,7 @@ operation = OperationDecorator
 
 # Helper decorators
 
+
 def globaloperation(fn):
     if getattr(fn, '_PCML_exported', False):
         exported_func = fn
@@ -71,6 +73,7 @@ def globaloperation(fn):
     else:
         exported_func = operation(opclass=OpClass.globalclass)(fn)
     return exported_func
+
 
 def localoperation(fn):
     if getattr(fn, '_PCML_exported', False):
@@ -80,6 +83,7 @@ def localoperation(fn):
         exported_func = operation(opclass=OpClass.localclass)(fn)
     return exported_func
 
+
 def focaloperation(fn):
     if getattr(fn, '_PCML_exported', False):
         exported_func = fn
@@ -88,6 +92,7 @@ def focaloperation(fn):
         exported_func = operation(opclass=OpClass.focalclass)(fn)
     return exported_func
 
+
 def zonaloperation(fn):
     if getattr(fn, '_PCML_exported', False):
         exported_func = fn
@@ -95,6 +100,7 @@ def zonaloperation(fn):
     else:
         exported_func = operation(opclass=OpClass.zonalclass)(fn)
     return exported_func
+
 
 def executor(fn):
     if not isinstance(fn, types.FunctionType):
