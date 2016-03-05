@@ -9,6 +9,7 @@ import numpy as np
 import types
 import math
 from numba import jit
+from scipy import ndimage
 #from scipy import stats
 
 @executor
@@ -183,4 +184,85 @@ def Contour_Lines_Numba(self,subdomains): # Experimental
     outarrdim=np.array([subdomains[0].nrows,subdomains[0].ncols,subdomains[0].r,subdomains[0].c])
     datarrdim=np.array([subdomains[1].nrows,subdomains[1].ncols,subdomains[1].r,subdomains[1].c])
     countour_line_calc(outarray,outarrdim,dataarray,datarrdim,self.buffersize,subdomains[1].nodata_value)
+
+# Makes a footprint array for ndimage filters (can be used by Buffer for example)
+def _makefp(dist,cellsize):
+    # Calculate the array size for footprint
+    fpsize=int(math.ceil(dist/cellsize)*2)+1
+    # Calculate the "raster distance" in number of cells from center
+    rdist=math.ceil(dist/cellsize)
+    # Create footprint array
+    fp=np.zeros((fpsize,fpsize))
+    for i in xrange(fpsize):
+        for j in xrange(fpsize):
+            xd=(rdist-i)*cellsize
+            yd=(rdist-j)*cellsize
+            d=math.sqrt(xd*xd + yd*yd) # Calculate distance
+            if(d<=dist):               # if less than dist, 1 else 0
+                fp[i][j]=1
+            else:
+                fp[i][j]=0
+    return fp
+
+# Function for nearby classify used in scipy.ndimage.generic_filter
+def _nearbyclassifyfunct(values,classifyval):
+    if classifyval in values: # If we find classifyval in the search space
+        return 1              # Return true (1)
+    else:
+        return 0
+
+# Function for buffer to be used in scipy.ndimage.generic_filter
+def _bufferfunct(values,classifyval):
+    if classifyval in values: # If we find classifyval in the search space
+        return classifyval    # Return it (which acts as a buffer)
+    else:
+        return values[len(values)/2]  # Otherwise return the original value (in the middle of values array)
+
+@executor
+@focaloperation
+def FocalBuffer(self,subdomains):
+    # Get the array from the output subdomain as well as the output subdomain
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    # Get the input subdomain
+    insubdomain = subdomains[1]
+    inarr = insubdomain.get_nparray()
+
+    classifyval = self.kwargs.get('classtype',0)
+
+    # Create the footprint array for ndimage filter
+    fp = _makefp(self.buffersize,outsubdomain.cellsize)
+
+    arr=ndimage.generic_filter(inarr,function=_bufferfunct,footprint=fp,extra_arguments=(classifyval,))
+
+    # Copy values to outarr (outsubdomain)
+    roffset=outsubdomain.r-insubdomain.r
+    coffset=outsubdomain.c-insubdomain.c
+    outarr[:,:]=arr[roffset:outsubdomain.nrows+roffset,coffset:outsubdomain.ncols+coffset]
+    
+
+@executor
+@focaloperation
+def BufferedClassify(self,subdomains):
+    # Get the array from the output subdomain as well as the output subdomain
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    # Get the input subdomain
+    insubdomain = subdomains[1]
+    inarr = insubdomain.get_nparray()
+
+    classifyval = self.kwargs.get('classtype',0)
+
+    # Create the footprint array for ndimage filter
+    fp = _makefp(self.buffersize,outsubdomain.cellsize)
+
+    arr=ndimage.generic_filter(inarr,function=_nearbyclassifyfunct,footprint=fp,extra_arguments=(classifyval,))
+
+    # Only get the inside portion of the insubdomain array (this complex thing trims out ghost zones)
+    roffset=outsubdomain.r-insubdomain.r
+    coffset=outsubdomain.c-insubdomain.c
+    outarr[:,:]=arr[roffset:outsubdomain.nrows+roffset,coffset:outsubdomain.ncols+coffset]
+    #outarr[:,:]=arr[outsubdomain.r-insubdomain.r:outsubdomain.nrows,outsubdomain.c-insubdomain.c:outsubdomain.ncols]
+    
+
 

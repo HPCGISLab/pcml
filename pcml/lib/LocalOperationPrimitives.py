@@ -170,5 +170,13 @@ def LocalXor(self,locations,subdomains):
 @localoperation
 def LocalNot(self,locations,subdomains):
     #This gets a location and do a logical not
-    return ~(locations[0]['v'])
+    return int(~(bool(locations[0]['v'])))
+
+@localoperation
+def LocalAnd(self,locations,subdomains):
+    val=int(locations[0]['v'])
+    for loc in locations:
+        val &= int(loc['v'])
+    return int(val)
+
 

@@ -140,3 +140,18 @@ def LocalClassify20_np(self, subdomains):
     arr=np.floor(subdomains[1].get_nparray()/20)
     outarr[:,:]=arr
 
+@executor
+@localoperation
+#finding Local Product among the given locations
+def LocalClassify(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+
+    classifyval = self.kwargs.get('classtype',0)
+
+    arr=np.where(subdomains[1].get_nparray() == classifyval, 1, 0)
+    outarr[:,:]=arr
+
+
+
+
