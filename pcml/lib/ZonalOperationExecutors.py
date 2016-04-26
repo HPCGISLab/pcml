@@ -16,11 +16,8 @@ try:
    from scipy import stats
 except ImportError as e:
    PCMLConfig.scipyenabled=0
-   if e.message != 'No module named osgeo':
-      raise
-'''
-'''
-
+   #if e.message != 'No module named osgeo':
+   #   raise
 
 @executor
 @zonaloperation

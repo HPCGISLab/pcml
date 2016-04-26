@@ -6,9 +6,15 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Zhengliang Feng (odayfan
 from ..util.SharedMemory import *
 from ..util.Messaging import *
 from .PCMLPrims import *
+import PCMLConfig as PCMLConfig
 import copy
 import multiprocessing as mp
-from scipy.spatial import cKDTree
+try:
+   PCMLConfig.scipyenabled = 1
+   from scipy.spatial import cKDTree
+except ImportError as e:
+   PCMLConfig.scipyenabled = 0
+
 
 
 class BoundingBox(object):
@@ -173,6 +179,8 @@ class BoundingBox(object):
 
     # Get neighbors for points using cKDTree
     def getneighbors(self, location, count=1, radius=np.inf, excludesearchlocation=False, distreq=False):
+        if PCMLConfig.scipyenabled == 0:
+            PCMLNotSupported("SciPy module required for getneighbors()")
         if excludesearchlocation:
             count += 1
         if self.tree is None:

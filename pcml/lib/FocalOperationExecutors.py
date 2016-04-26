@@ -5,11 +5,24 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Jayakrishnan Ajayakumar 
 from ..core.Operation import *
 from ..core.Scheduler import *
 from ..util.OperationBuilder import *
+import pcml.core.PCMLConfig as PCMLConfig
 import numpy as np
 import types
 import math
-from numba import jit
-from scipy import ndimage
+
+try:
+   PCMLConfig.numbaenabled = 1
+   from numba import jit
+except ImportError as e:
+   PCMLConfig.numbaenabled = 0
+
+try:
+   PCMLConfig.scipyenabled = 1
+   from scipy import ndimage
+except ImportError as e:
+   PCMLConfig.scipyenabled = 0
+
+
 #from scipy import stats
 
 @executor
@@ -61,51 +74,53 @@ def FocalMean_np_exec(self, subdomains):
             # Take a slice of the array (inarr) based on those calculations, average the results
             outarr[roworig][colorig]=np.average(inarr[r:r + h, c:c + w])
 
-#Helper function to claculate shade using Numba
-@jit(nopython=True)
-def numbashadecalculator_new(outarray,outarrdim,inputarray,inputarrdim,parameterdata,nodata_value):
-    buffersize=1
-    for i in xrange(outarrdim[0]):
-        for j in xrange(outarrdim[1]):
-            rout,cout=i+outarrdim[2],j+outarrdim[3]
-            rin,cin=rout-inputarrdim[2],cout-inputarrdim[3]
-            r,c=rin-buffersize,cin-buffersize
-            if r<0:
-                r=0
-            if c<0:
-                c=0
-            h=buffersize+(rin-r)+1
-            if r+h > inputarrdim[0]:
-                h=inputarrdim[0]-r
-            w=buffersize+(cin-c)+1
-            if c+w > inputarrdim[1]:
-                w=inputarrdim[1]-c
-            arr=inputarray[r:r+h,c:c+w]
-            arraysize=arr.size
-            if(arraysize!= 9):
-                outarray[i][j]=nodata_value
-                continue
-            containsnodata=False
-            for ii in xrange(3):
-                for jj in xrange(3):
-                    if arr[ii][jj]==nodata_value:
-                        containsnodata=True
+if PCMLConfig.numbaenabled == 1:
+
+    #Helper function to claculate shade using Numba
+    @jit(nopython=True)
+    def numbashadecalculator_new(outarray,outarrdim,inputarray,inputarrdim,parameterdata,nodata_value):
+        buffersize=1
+        for i in xrange(outarrdim[0]):
+            for j in xrange(outarrdim[1]):
+                rout,cout=i+outarrdim[2],j+outarrdim[3]
+                rin,cin=rout-inputarrdim[2],cout-inputarrdim[3]
+                r,c=rin-buffersize,cin-buffersize
+                if r<0:
+                    r=0
+                if c<0:
+                    c=0
+                h=buffersize+(rin-r)+1
+                if r+h > inputarrdim[0]:
+                    h=inputarrdim[0]-r
+                w=buffersize+(cin-c)+1
+                if c+w > inputarrdim[1]:
+                    w=inputarrdim[1]-c
+                arr=inputarray[r:r+h,c:c+w]
+                arraysize=arr.size
+                if(arraysize!= 9):
+                    outarray[i][j]=nodata_value
+                    continue
+                containsnodata=False
+                for ii in xrange(3):
+                    for jj in xrange(3):
+                        if arr[ii][jj]==nodata_value:
+                            containsnodata=True
+                            break
+                    if (containsnodata):
                         break
                 if (containsnodata):
-                    break
-            if (containsnodata):
-                outarray[i][j]=nodata_value
-                continue
-            dzdx=((arr[2][2]+2*arr[1][2]+arr[0][2]) - (arr[2][0]+2*arr[1][0]+arr[0][0]))/ parameterdata[0]
-            dzdy=((arr[2][0]+2*arr[2][1]+arr[2][2]) - (arr[0][0]+2*arr[0][1]+arr[0][2])) / parameterdata[0]
-            xx_plus_yy = (dzdx*dzdx) + (dzdy*dzdy)
-            aspect=np.arctan2(dzdy,-dzdx)
-            shade=(parameterdata[2] - parameterdata[4] * np.sqrt(xx_plus_yy) * np.sin(aspect - parameterdata[3]))/np.sqrt(1+parameterdata[5] * xx_plus_yy)
-            if (shade <= 0):
-                shade=1.0
-            else:
-                shade=1.0 + (254.0 * shade)
-            outarray[i][j]=np.ceil(shade)   
+                    outarray[i][j]=nodata_value
+                    continue
+                dzdx=((arr[2][2]+2*arr[1][2]+arr[0][2]) - (arr[2][0]+2*arr[1][0]+arr[0][0]))/ parameterdata[0]
+                dzdy=((arr[2][0]+2*arr[2][1]+arr[2][2]) - (arr[0][0]+2*arr[0][1]+arr[0][2])) / parameterdata[0]
+                xx_plus_yy = (dzdx*dzdx) + (dzdy*dzdy)
+                aspect=np.arctan2(dzdy,-dzdx)
+                shade=(parameterdata[2] - parameterdata[4] * np.sqrt(xx_plus_yy) * np.sin(aspect - parameterdata[3]))/np.sqrt(1+parameterdata[5] * xx_plus_yy)
+                if (shade <= 0):
+                    shade=1.0
+                else:
+                    shade=1.0 + (254.0 * shade)
+                outarray[i][j]=np.ceil(shade)   
 
 #Hillshade calculation using numba
 @executor
@@ -221,6 +236,9 @@ def _bufferfunct(values,classifyval):
 @executor
 @focaloperation
 def FocalBuffer(self,subdomains):
+    if PCMLConfig.scipyenabled == 0:
+        PCMLNotSupported("SciPy module required for getneighbors()")
+ 
     # Get the array from the output subdomain as well as the output subdomain
     outsubdomain = subdomains[0]
     outarr = outsubdomain.get_nparray()
