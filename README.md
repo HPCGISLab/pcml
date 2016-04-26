@@ -38,9 +38,9 @@ For detailed instructions please see https://github.com/HPCGISLab/pcml/blob/mast
    It provides Python and several Python packages, but can be skipped if you have Python already.
 
 #### 1. Download PCML
-   Navigate to the PCML page on GitHub at https://github.com/hpcgislab/pcml
+   Navigate to this page (i.e., the PCML page on GitHub at https://github.com/hpcgislab/pcml)
 
-   Click "Download ZIP"
+   Scroll up and click the "Download ZIP" button on the right side.
 
 #### 2.	Unzip PCML
 
@@ -52,4 +52,15 @@ For detailed instructions please see https://github.com/HPCGISLab/pcml/blob/mast
 
 #### 4. Create your own LocalSum function in under 30 minutes!
 
+   Open 'demo_30min_walkthrough.pdf' and follow the 30 minute tutorial.
+
 #### 5. Run PCML and start processing spatial data in parallel
+
+   Success!
+   
+#### 6. Run into a problem or a bug? Or have a great idea?
+
+   Let us know!  We are trying to make PCML as easy-to-use and as useful as possible.
+   We live to collaborate and work on interesting problems (and we will debug your PCML code for you).
+   
+   Submit a 'New issue' on github (https://github.com/HPCGISLab/pcml/issues) or email Eric Shook (eshook@gmail.com).
