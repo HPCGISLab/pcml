@@ -80,6 +80,8 @@ if __name__ == '__main__':
     print "\nWriting layer1 and layer3 out as an ASCII grid file and GeoTIFF"
     print "Writing",datadir,"layer1.asc"
     WriteASCIIGrid(path.join(datadir,"layer1.asc"), layer1)
+
+    # Print please note that GeoTIFF writing will only work with the GDAL package installed.
     print "Writing",datadir,"layer3.tif"
     WriteGeoTIFF(path.join(datadir,"layer3.tif"), layer3)
 

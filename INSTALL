@@ -1,10 +1,19 @@
-1. Make sure that pip and setuptools are installed in your current Python environment (global or a virtualenv).
-2. Run the following commands:
+0. We strongly recommend using the Ananconda Python distribution to ensure you have all the required packages.
+   While PCML will work with a minimal Python installation, several features will be disabled if you do not have geospatial tools such as GDAL.
+   Ananconda can be downloaded here: http://continuum.io/downloads
+
+   Windows installation instructions can be found on the PCML Github page: https://github.com/hpcgislab/pcml
+
+1. PCML can be executed from this working directory without installation.
+   Just run 'demo_30min.py' or 'examples.py' to start using PCML.
+
+2. For Linux installations make sure that pip and setuptools are installed in your current Python environment (global or a virtualenv).
+3. Run the following commands:
 
     $ pip install -r requirements.txt # Need to use pip to install numpy and other required packages or the next line will fail
     $ python setup.py install
 
-3. Testing and code coverage
+4. Testing and code coverage
 
     $ python setup.py test
 
