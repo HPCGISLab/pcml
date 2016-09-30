@@ -6,10 +6,14 @@ Authors and contributors: Eric Shook (eshook@kent.edu); Jayakrishnan Ajayakumar 
 from ..core.Operation import *
 from ..core.Scheduler import *
 from ..util.OperationBuilder import *
-#from scipy import stats
 #import numpy as np
 #import types
 #import math
+
+if PCMLConfig.scipyenabled:
+    from scipy import stats
+	
+
 
 #Calculate the zonal mean at a location based on two input subdomains with raster data and zonal data
 @zonaloperation
@@ -39,17 +43,20 @@ def zonalminimum(self,locations,subdomains):
     zonalarray=subdomains[1].bufferedlocgetarr(locations[1],self.buffersize)
     return np.min(rasterarray[np.where(zonalarray==locations[1]['v'])])
 
-#Calculate the zonal majority at a location based on two input subdomains with raster data and zonal data
-@zonaloperation
-def zonalmajority(self,locations,subdomains):
-    rasterarray=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)
-    zonalarray=subdomains[1].bufferedlocgetarr(locations[1],self.buffersize)
-    return stats.mode(rasterarray[np.where(zonalarray==locations[1]['v'])])[0][0]
+if PCMLConfig.scipyenabled:
+    #Calculate the zonal majority at a location based on two input subdomains with raster data and zonal data
+    @zonaloperation
+    def zonalmajority(self,locations,subdomains):
+        rasterarray=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)
+        zonalarray=subdomains[1].bufferedlocgetarr(locations[1],self.buffersize)
+        print("outzm=",stats.mode(rasterarray[np.where(zonalarray==locations[1]['v'])])[0][0])
+        return stats.mode(rasterarray[np.where(zonalarray==locations[1]['v'])])[0][0]
 
-#Calculate the zonal minority at a location based on two input subdomains with raster data and zonal data
-@zonaloperation
-def zonalminority(self,locations,subdomains):
-    rasterarray=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)
-    zonalarray=subdomains[1].bufferedlocgetarr(locations[1],self.buffersize)
-    frequency=stats.itemfreq(rasterarray[np.where(zonalarray==locations[1]['v'])])
-    return frequency[np.argmin(frequency[:,1])][0]
+if PCMLConfig.scipyenabled:
+    #Calculate the zonal minority at a location based on two input subdomains with raster data and zonal data
+    @zonaloperation
+    def zonalminority(self,locations,subdomains):
+        rasterarray=subdomains[0].bufferedlocgetarr(locations[0],self.buffersize)
+        zonalarray=subdomains[1].bufferedlocgetarr(locations[1],self.buffersize)
+        frequency=stats.itemfreq(rasterarray[np.where(zonalarray==locations[1]['v'])])
+        return frequency[np.argmin(frequency[:,1])][0]
