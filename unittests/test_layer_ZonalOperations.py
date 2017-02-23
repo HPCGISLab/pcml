@@ -11,6 +11,8 @@ import numpy as np
 import cml_test
 import unittest
 
+# TODO: Use the dataz.asc file to do unit + integration tests for zonal statistics.
+
 # Preliminary tests for spatial operations
 class TestLayerOperationsSerial(cml_test.PCMLSerialTestCase):
     def setUp(self):
