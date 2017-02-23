@@ -130,6 +130,74 @@ def LocalProduct_np(self, subdomains):
     arr=np.multiply(subdomains[1].get_nparray(),subdomains[2].get_nparray())
     outarr[:,:]=arr
 
+@executor
+@localoperation
+# Local Divide Executor
+def LocalDivision_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.divide(subdomains[1].get_nparray(),subdomains[2].get_nparray())
+    outarr[:,:]=arr
+
+@executor
+@localoperation
+# Local Exponent Executor
+def LocalExponent_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.exp(subdomains[1].get_nparray())
+    outarr[:,:]=arr
+
+@executor
+@localoperation
+# Local Natural Log Executor
+def LocalLog_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.log(subdomains[1].get_nparray())
+    outarr[:,:]=arr
+
+@executor
+@localoperation
+# Local Log base-2 Executor
+def LocalLog_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.log2(subdomains[1].get_nparray())
+    outarr[:,:]=arr
+
+# More utility operations
+# Generally used to simplify output for visualization or final analysis
+
+@executor
+@localoperation
+# Local Floor Executor
+def LocalFloor_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.floor(subdomains[1].get_nparray())
+    outarr[:,:]=arr
+
+
+@executor
+@localoperation
+# Local Ceiling Executor
+def LocalCeil_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.ceil(subdomains[1].get_nparray())
+    outarr[:,:]=arr
+
+@executor
+@localoperation
+# Local Truncatation Executor
+def LocalTrunc_np(self, subdomains):
+    outsubdomain = subdomains[0]
+    outarr = outsubdomain.get_nparray()
+    arr=np.trunc(subdomains[1].get_nparray())
+    outarr[:,:]=arr
+
+
 
 @executor
 @localoperation
