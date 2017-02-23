@@ -3,11 +3,20 @@
    Ananconda can be downloaded here: http://continuum.io/downloads
 
    Windows installation instructions can be found on the PCML Github page: https://github.com/hpcgislab/pcml
+   
+   Using Anaconda (Anaconda Prompt or conda) you can run:
+   
+   pip install gdal
+   
+   To install gdal and be able to read and write geotiff and other geospatial data files.
 
 1. PCML can be executed from this working directory without installation.
    Just run 'demo_30min.py' or 'examples.py' to start using PCML.
+   
+   (Note: gdal is not required to run the 30 minute demo)
 
-2. For Linux installations make sure that pip and setuptools are installed in your current Python environment (global or a virtualenv).
+2. For Linux installations make sure that pip and setuptools are installed in your current Python environment (global or a virtualenv). Note: Installation is not required, you can run PCML 'in place' without running the following commands.
+
 3. Run the following commands:
 
     $ pip install -r requirements.txt # Need to use pip to install numpy and other required packages or the next line will fail
