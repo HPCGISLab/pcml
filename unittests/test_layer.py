@@ -10,6 +10,8 @@ from numpy.ma import allequal
 import numpy as np
 import unittest
 
+# TODO: Use the data*.asc files as test cases for unit + integration testing.
+
 class TestLayer(unittest.TestCase):
     def setUp(self):
         # Basic layer from origin to h X w
