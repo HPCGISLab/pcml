@@ -11,6 +11,7 @@ import numpy as np
 import unittest
 
 # TODO: Use the data*.asc files as test cases for unit + integration testing.
+# They should be tested against gold standard data.
 
 class TestLayer(unittest.TestCase):
     def setUp(self):
@@ -32,7 +33,7 @@ class TestLayer(unittest.TestCase):
         self.layer7=Layer(100,0,10,10,"Layer seven")
         arr=np.asarray([[5]*3]*3)
         self.layer7.set_nparray(arr,1,10)
-
+        
     # Test the return from repr for example layers 
     def test_layer_repr(self):
         layer1_test = "<Layer: (%f,%f) [%f,%f] : %s>" % (0,0,100,100,"Layer One")
